@@ -33,8 +33,6 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    env:
-      GOFLAGS: ""
     steps:
       - uses: actions/checkout@v4
 
@@ -46,3 +44,5 @@ jobs:
         uses: golangci/golangci-lint-action@v7
         with:
           version: v2.1.6
+        env:
+          GOLANGCI_LINT_ALLOW_GO_VERSION_MISMATCH: "1"
