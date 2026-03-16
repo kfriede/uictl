@@ -51,7 +51,19 @@ Run 'uictl schema <resource>.<action>' for command introspection.`,
 }
 
 func Execute() error {
-	return rootCmd.Execute()
+	err := rootCmd.Execute()
+	if err != nil {
+		// Print error to stderr (Cobra's SilenceErrors suppresses its own printing)
+		if printer != nil {
+			printer.PrintError(output.AppError{
+				Code:    output.ErrCodeGeneral,
+				Message: err.Error(),
+			})
+		} else {
+			fmt.Fprintln(os.Stderr, "Error:", err)
+		}
+	}
+	return err
 }
 
 func init() {
@@ -89,6 +101,9 @@ func init() {
 
 	// Register subcommands
 	rootCmd.AddCommand(versionCmd)
+
+	// Enable "did you mean?" suggestions
+	EnableSuggestions()
 }
 
 func initConfig() {

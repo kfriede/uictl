@@ -1,0 +1,64 @@
+version: 2
+
+project_name: uictl
+
+before:
+  hooks:
+    - go mod tidy
+    - go test ./...
+
+builds:
+  - main: .
+    binary: uictl
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/kfriede/uictl/cmd.Version={{.Version}}
+      - -X github.com/kfriede/uictl/cmd.Commit={{.ShortCommit}}
+      - -X github.com/kfriede/uictl/cmd.BuildDate={{.Date}}
+
+archives:
+  - formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+brews:
+  - repository:
+      owner: kfriede
+      name: homebrew-tap
+    directory: Formula
+    homepage: "https://github.com/kfriede/uictl"
+    description: "CLI for managing UniFi network devices and controllers"
+    license: "MIT"
+    install: |
+      bin.install "uictl"
+    test: |
+      system "#{bin}/uictl", "version"
+
+release:
+  github:
+    owner: kfriede
+    name: uictl
