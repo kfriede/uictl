@@ -16,17 +16,22 @@ const (
 	maxRetries         = 3
 	retryBaseDelay     = 1 * time.Second
 	userAgent          = "uictl/0.1.0"
-	integrationAPIPath = "/integration"
+
+	// UniFi OS consoles (UDM, UDM Pro, etc.) use the proxy path
+	unifiOSAPIPath = "/proxy/network/integration"
+	// Standalone Network Application uses the direct path
+	standaloneAPIPath = "/integration"
 )
 
 // Client is the UniFi API client.
 type Client struct {
-	httpClient *http.Client
-	baseURL    string
-	apiKey     string
-	verbose    bool
-	debug      bool
-	errWriter  io.Writer
+	httpClient   *http.Client
+	baseURL      string
+	apiKey       string
+	verbose      bool
+	debug        bool
+	errWriter    io.Writer
+	pathDetected bool
 }
 
 // ClientConfig configures a Client.
@@ -62,11 +67,50 @@ func NewClient(cfg ClientConfig) *Client {
 			Timeout:   cfg.Timeout,
 			Transport: transport,
 		},
-		baseURL:   baseURL + integrationAPIPath,
+		baseURL:   baseURL,
 		apiKey:    cfg.APIKey,
 		verbose:   cfg.Verbose,
 		debug:     cfg.Debug,
 		errWriter: cfg.ErrWriter,
+	}
+}
+
+// detectAPIPath probes the controller to find the correct API base path.
+// UniFi OS consoles use /proxy/network/integration, standalone uses /integration.
+func (c *Client) detectAPIPath() {
+	// Try UniFi OS path first (more common with modern hardware)
+	testURL := c.baseURL + unifiOSAPIPath + "/v1/info"
+	req, err := http.NewRequest("GET", testURL, nil)
+	if err != nil {
+		c.baseURL += standaloneAPIPath
+		return
+	}
+	req.Header.Set("User-Agent", userAgent)
+	if c.apiKey != "" {
+		req.Header.Set("X-API-KEY", c.apiKey)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		c.baseURL += standaloneAPIPath
+		return
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	// If we get JSON back (even a 401), the path is correct
+	ct := resp.Header.Get("Content-Type")
+	if strings.Contains(ct, "application/json") {
+		c.baseURL += unifiOSAPIPath
+		if c.verbose {
+			_, _ = fmt.Fprintf(c.errWriter, "  detected UniFi OS console (proxy path)\n")
+		}
+		return
+	}
+
+	// Got HTML or other — try standalone path
+	c.baseURL += standaloneAPIPath
+	if c.verbose {
+		_, _ = fmt.Fprintf(c.errWriter, "  using standalone controller path\n")
 	}
 }
 
@@ -97,6 +141,11 @@ type PageResponse struct {
 
 // Do performs an HTTP request with retry logic.
 func (c *Client) Do(method, path string, body io.Reader) (*http.Response, error) {
+	if !c.pathDetected {
+		c.detectAPIPath()
+		c.pathDetected = true
+	}
+
 	url := c.baseURL + path
 
 	var lastErr error

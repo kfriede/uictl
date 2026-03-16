@@ -30,6 +30,7 @@ func TestClientGet(t *testing.T) {
 	})
 	// Override baseURL since test server doesn't have /integration prefix
 	c.baseURL = server.URL
+	c.pathDetected = true
 
 	var result map[string]string
 	if err := c.GetJSON("", &result); err != nil {
@@ -61,6 +62,7 @@ func TestClientRetry(t *testing.T) {
 		ErrWriter: os.Stderr,
 	})
 	c.baseURL = server.URL
+	c.pathDetected = true
 
 	var result map[string]string
 	if err := c.GetJSON("", &result); err != nil {
@@ -89,6 +91,7 @@ func TestClientAPIError(t *testing.T) {
 		ErrWriter: os.Stderr,
 	})
 	c.baseURL = server.URL
+	c.pathDetected = true
 
 	_, err := c.Get("")
 	if err == nil {
@@ -137,6 +140,7 @@ func TestClientPagination(t *testing.T) {
 		ErrWriter: os.Stderr,
 	})
 	c.baseURL = server.URL
+	c.pathDetected = true
 
 	results, err := c.GetAllPages("")
 	if err != nil {

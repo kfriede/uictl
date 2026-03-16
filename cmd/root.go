@@ -93,6 +93,7 @@ func init() {
 	// Bind env vars
 	viper.SetEnvPrefix("UICTL")
 	_ = viper.BindEnv("host")
+	_ = viper.BindEnv("api_key")
 	_ = viper.BindEnv("site")
 	_ = viper.BindEnv("profile")
 	_ = viper.BindEnv("output_format")

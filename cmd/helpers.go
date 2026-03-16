@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/kfriede/uictl/internal/api"
 	"github.com/kfriede/uictl/internal/config"
@@ -23,17 +24,11 @@ func newAPIClient() (*api.Client, error) {
 
 	apiKey := cfg.APIKey
 	if apiKey == "" {
-		// Try keyring
+		// Try keyring (non-fatal if keyring unavailable)
 		secret, err := config.GetSecret(cfg.Profile)
-		if err != nil {
-			printer.PrintError(output.NewError(
-				output.ErrCodeAuth,
-				"Could not retrieve API key from keyring: "+err.Error(),
-				"Run `uictl login` to re-authenticate.",
-			))
-			return nil, err
+		if err == nil {
+			apiKey = secret
 		}
-		apiKey = secret
 	}
 
 	if apiKey == "" {
@@ -51,9 +46,10 @@ func newAPIClient() (*api.Client, error) {
 	}), nil
 }
 
-// requireSite returns the site ID, erroring if not set.
+// requireSite returns the site ID, resolving names like "default" to UUIDs.
 func requireSite() (string, error) {
-	if cfg.Site == "" {
+	site := cfg.Site
+	if site == "" {
 		printer.PrintError(output.NewError(
 			output.ErrCodeConfig,
 			"No site specified",
@@ -61,7 +57,33 @@ func requireSite() (string, error) {
 		))
 		return "", fmt.Errorf("no site specified")
 	}
-	return cfg.Site, nil
+
+	// If it looks like a UUID already, use it directly
+	if len(site) == 36 && strings.Count(site, "-") == 4 {
+		return site, nil
+	}
+
+	// Otherwise resolve the name/internalReference to a UUID
+	client, err := newAPIClient()
+	if err != nil {
+		return "", err
+	}
+
+	data, err := client.GetAllPages("/v1/sites")
+	if err != nil {
+		return "", fmt.Errorf("resolving site %q: %w", site, err)
+	}
+
+	for _, s := range data {
+		name, _ := s["name"].(string)
+		ref, _ := s["internalReference"].(string)
+		id, _ := s["id"].(string)
+		if strings.EqualFold(name, site) || strings.EqualFold(ref, site) {
+			return id, nil
+		}
+	}
+
+	return "", fmt.Errorf("site %q not found; run `uictl site list` to see available sites", site)
 }
 
 // confirmAction asks the user to confirm a destructive action.
