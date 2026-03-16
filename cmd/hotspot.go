@@ -137,7 +137,9 @@ Examples:
 		}
 
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success("Created vouchers")
 		return printAPIResult(result)
 	},

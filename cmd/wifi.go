@@ -103,7 +103,9 @@ var wifiCreateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success("Created WiFi broadcast")
 		return printAPIResult(result)
 	},
@@ -143,7 +145,9 @@ var wifiUpdateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Updated WiFi broadcast %s", args[0]))
 		return printAPIResult(result)
 	},

@@ -92,7 +92,9 @@ var cameraUpdateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Updated camera %s", args[0]))
 		return printAPIResult(result)
 	},
@@ -156,7 +158,9 @@ var cameraDisableMicCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Permanently disabled microphone on camera %s", args[0]))
 		return printAPIResult(result)
 	},
@@ -207,7 +211,9 @@ Examples:
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success("Created RTSPS streams")
 		return printAPIResult(result)
 	},
@@ -259,7 +265,9 @@ var cameraTalkbackCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		return printAPIResult(result)
 	},
 }

@@ -78,7 +78,9 @@ var protectInfoCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(data, &result)
+		if err := json.Unmarshal(data, &result); err != nil {
+			return err
+		}
 		return printAPIResult(result)
 	},
 }

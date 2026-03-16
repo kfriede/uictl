@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -68,7 +67,7 @@ var configPathCmd = &cobra.Command{
 	Short: "Show config directory path",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Fprintln(os.Stdout, config.Dir())
+		_, _ = fmt.Fprintln(os.Stdout, config.Dir())
 		return nil
 	},
 }
@@ -114,10 +113,4 @@ func max(a, b int) int {
 		return a
 	}
 	return b
-}
-
-// marshalJSON is a helper to output config as JSON, unused but available for future.
-func marshalJSON(v any) string {
-	b, _ := json.MarshalIndent(v, "", "  ")
-	return string(b)
 }

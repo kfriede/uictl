@@ -99,7 +99,9 @@ var aclCreateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success("Created ACL rule")
 		return printAPIResult(result)
 	},
@@ -137,7 +139,9 @@ var aclUpdateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Updated ACL rule %s", args[0]))
 		return printAPIResult(result)
 	},
@@ -204,7 +208,9 @@ var aclOrderCmd = &cobra.Command{
 				return err
 			}
 			var result map[string]any
-			json.Unmarshal(resp, &result)
+			if err := json.Unmarshal(resp, &result); err != nil {
+				return err
+			}
 			printer.Success("Updated ACL rule ordering")
 			return printAPIResult(result)
 		}

@@ -116,7 +116,7 @@ func (c *Client) Do(method, path string, body io.Reader) (*http.Response, error)
 		}
 
 		if c.verbose {
-			fmt.Fprintf(c.errWriter, "[%s] %s\n", method, url)
+			_, _ = fmt.Fprintf(c.errWriter, "[%s] %s\n", method, url)
 		}
 
 		start := time.Now()
@@ -125,9 +125,9 @@ func (c *Client) Do(method, path string, body io.Reader) (*http.Response, error)
 
 		if c.verbose {
 			if err != nil {
-				fmt.Fprintf(c.errWriter, "  error: %v (%.1fs)\n", err, elapsed.Seconds())
+				_, _ = fmt.Fprintf(c.errWriter, "  error: %v (%.1fs)\n", err, elapsed.Seconds())
 			} else {
-				fmt.Fprintf(c.errWriter, "  %d (%.1fs)\n", resp.StatusCode, elapsed.Seconds())
+				_, _ = fmt.Fprintf(c.errWriter, "  %d (%.1fs)\n", resp.StatusCode, elapsed.Seconds())
 			}
 		}
 
@@ -146,7 +146,7 @@ func (c *Client) Do(method, path string, body io.Reader) (*http.Response, error)
 			if attempt < maxRetries-1 {
 				delay := retryDelay(attempt)
 				if c.verbose {
-					fmt.Fprintf(c.errWriter, "  retrying in %v...\n", delay)
+					_, _ = fmt.Fprintf(c.errWriter, "  retrying in %v...\n", delay)
 				}
 				time.Sleep(delay)
 			}
@@ -165,7 +165,7 @@ func (c *Client) Get(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -173,7 +173,7 @@ func (c *Client) Get(path string) ([]byte, error) {
 	}
 
 	if c.debug {
-		fmt.Fprintf(c.errWriter, "  response body: %s\n", truncate(string(data), 2000))
+		_, _ = fmt.Fprintf(c.errWriter, "  response body: %s\n", truncate(string(data), 2000))
 	}
 
 	if resp.StatusCode >= 400 {
@@ -213,7 +213,7 @@ func (c *Client) Delete(path string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode >= 400 {
 		data, _ := io.ReadAll(resp.Body)
@@ -260,7 +260,7 @@ func (c *Client) mutate(method, path string, body any) ([]byte, error) {
 			return nil, fmt.Errorf("marshaling request body: %w", err)
 		}
 		if c.debug {
-			fmt.Fprintf(c.errWriter, "  request body: %s\n", truncate(string(data), 2000))
+			_, _ = fmt.Fprintf(c.errWriter, "  request body: %s\n", truncate(string(data), 2000))
 		}
 		bodyReader = strings.NewReader(string(data))
 	}
@@ -269,7 +269,7 @@ func (c *Client) mutate(method, path string, body any) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	respData, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -277,7 +277,7 @@ func (c *Client) mutate(method, path string, body any) ([]byte, error) {
 	}
 
 	if c.debug {
-		fmt.Fprintf(c.errWriter, "  response body: %s\n", truncate(string(respData), 2000))
+		_, _ = fmt.Fprintf(c.errWriter, "  response body: %s\n", truncate(string(respData), 2000))
 	}
 
 	if resp.StatusCode >= 400 {

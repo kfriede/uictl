@@ -74,7 +74,7 @@ func confirmAction(action string) bool {
 	fmt.Fprintf(os.Stderr, "Are you sure you want to %s? (y/N): ", action)
 
 	var response string
-	fmt.Scanln(&response)
+	_, _ = fmt.Scanln(&response)
 	return response == "y" || response == "yes" || response == "Y"
 }
 

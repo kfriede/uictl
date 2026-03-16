@@ -18,7 +18,7 @@ func TestClientGet(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"applicationVersion": "10.2.93"})
+		_ = json.NewEncoder(w).Encode(map[string]string{"applicationVersion": "10.2.93"})
 	}))
 	defer server.Close()
 
@@ -50,7 +50,7 @@ func TestClientRetry(t *testing.T) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+		_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 	}))
 	defer server.Close()
 
@@ -75,7 +75,7 @@ func TestClientRetry(t *testing.T) {
 func TestClientAPIError(t *testing.T) {
 	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(map[string]any{
+		_ = json.NewEncoder(w).Encode(map[string]any{
 			"statusCode": 404,
 			"statusName": "NOT_FOUND",
 			"message":    "Device not found",
@@ -127,7 +127,7 @@ func TestClientPagination(t *testing.T) {
 			resp.Data = []map[string]any{{"id": "5"}}
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	}))
 	defer server.Close()
 

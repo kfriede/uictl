@@ -97,7 +97,9 @@ var dnsCreateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success("Created DNS policy")
 		return printAPIResult(result)
 	},
@@ -135,7 +137,9 @@ var dnsUpdateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Updated DNS policy %s", args[0]))
 		return printAPIResult(result)
 	},

@@ -96,10 +96,10 @@ func (p *Printer) PrintError(err AppError) {
 		_ = enc.Encode(errObj)
 	} else {
 		errColor := color.New(color.FgRed, color.Bold)
-		fmt.Fprintf(p.config.ErrWriter, "%s %s\n", errColor.Sprint("Error:"), err.Message)
+		_, _ = fmt.Fprintf(p.config.ErrWriter, "%s %s\n", errColor.Sprint("Error:"), err.Message)
 		if err.Guidance != "" {
 			hintColor := color.New(color.FgYellow)
-			fmt.Fprintf(p.config.ErrWriter, "%s %s\n", hintColor.Sprint("Hint:"), err.Guidance)
+			_, _ = fmt.Fprintf(p.config.ErrWriter, "%s %s\n", hintColor.Sprint("Hint:"), err.Guidance)
 		}
 	}
 }
@@ -107,7 +107,7 @@ func (p *Printer) PrintError(err AppError) {
 // Status prints a status message to stderr (never pollutes stdout).
 func (p *Printer) Status(msg string) {
 	if !p.config.Quiet {
-		fmt.Fprintln(p.config.ErrWriter, msg)
+		_, _ = fmt.Fprintln(p.config.ErrWriter, msg)
 	}
 }
 
@@ -115,7 +115,7 @@ func (p *Printer) Status(msg string) {
 func (p *Printer) Success(msg string) {
 	if !p.config.Quiet {
 		successColor := color.New(color.FgGreen)
-		fmt.Fprintf(p.config.ErrWriter, "%s %s\n", successColor.Sprint("✓"), msg)
+		_, _ = fmt.Fprintf(p.config.ErrWriter, "%s %s\n", successColor.Sprint("✓"), msg)
 	}
 }
 
@@ -193,7 +193,7 @@ func (p *Printer) printTable(data any) error {
 		items = []any{data}
 	}
 	if len(items) == 0 {
-		fmt.Fprintln(p.config.Writer, "No results.")
+		_, _ = fmt.Fprintln(p.config.Writer, "No results.")
 		return nil
 	}
 
@@ -241,20 +241,20 @@ func (p *Printer) printTable(data any) error {
 	headerColor := color.New(color.Bold)
 	for i, col := range columns {
 		if i > 0 {
-			fmt.Fprint(p.config.Writer, "  ")
+			_, _ = fmt.Fprint(p.config.Writer, "  ")
 		}
-		headerColor.Fprintf(p.config.Writer, "%-*s", widths[i], strings.ToUpper(col))
+		_, _ = headerColor.Fprintf(p.config.Writer, "%-*s", widths[i], strings.ToUpper(col))
 	}
-	fmt.Fprintln(p.config.Writer)
+	_, _ = fmt.Fprintln(p.config.Writer)
 
 	// Print separator
 	for i, w := range widths {
 		if i > 0 {
-			fmt.Fprint(p.config.Writer, "  ")
+			_, _ = fmt.Fprint(p.config.Writer, "  ")
 		}
-		fmt.Fprint(p.config.Writer, strings.Repeat("─", w))
+		_, _ = fmt.Fprint(p.config.Writer, strings.Repeat("─", w))
 	}
-	fmt.Fprintln(p.config.Writer)
+	_, _ = fmt.Fprintln(p.config.Writer)
 
 	// Print rows
 	for _, row := range rows {
@@ -263,15 +263,15 @@ func (p *Printer) printTable(data any) error {
 		}
 		for i, val := range row {
 			if i > 0 {
-				fmt.Fprint(p.config.Writer, "  ")
+				_, _ = fmt.Fprint(p.config.Writer, "  ")
 			}
 			// Truncate if too long
 			if len(val) > widths[i] {
 				val = val[:widths[i]-1] + "…"
 			}
-			fmt.Fprintf(p.config.Writer, "%-*s", widths[i], val)
+			_, _ = fmt.Fprintf(p.config.Writer, "%-*s", widths[i], val)
 		}
-		fmt.Fprintln(p.config.Writer)
+		_, _ = fmt.Fprintln(p.config.Writer)
 	}
 
 	return nil

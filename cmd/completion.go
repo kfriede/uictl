@@ -41,7 +41,7 @@ func registerDynamicCompletions() {
 	}
 
 	// Site flag completion
-	rootCmd.RegisterFlagCompletionFunc("site", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	_ = rootCmd.RegisterFlagCompletionFunc("site", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		client, err := newAPIClient()
 		if err != nil {
 			return nil, cobra.ShellCompDirectiveNoFileComp
@@ -61,7 +61,7 @@ func registerDynamicCompletions() {
 	})
 
 	// Output format completion
-	rootCmd.RegisterFlagCompletionFunc("output", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	_ = rootCmd.RegisterFlagCompletionFunc("output", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return []string{"table", "json", "csv", "ndjson"}, cobra.ShellCompDirectiveNoFileComp
 	})
 }

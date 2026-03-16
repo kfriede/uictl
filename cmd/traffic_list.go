@@ -98,7 +98,9 @@ var tlCreateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success("Created traffic matching list")
 		return printAPIResult(result)
 	},
@@ -136,7 +138,9 @@ var tlUpdateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Updated traffic matching list %s", args[0]))
 		return printAPIResult(result)
 	},

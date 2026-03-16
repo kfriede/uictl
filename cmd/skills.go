@@ -19,7 +19,7 @@ This is designed to be read once and internalized by an agent to
 reduce hallucinations and improve command accuracy.`,
 	Args: cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Fprint(cmd.OutOrStdout(), skillsText)
+		_, _ = fmt.Fprint(cmd.OutOrStdout(), skillsText)
 		return nil
 	},
 }

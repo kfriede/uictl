@@ -49,7 +49,7 @@ func runAPI(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(os.Stdout, string(data))
+		_, _ = fmt.Fprintln(os.Stdout, string(data))
 
 	case "POST", "PUT", "PATCH":
 		dataFlag, _ := cmd.Flags().GetString("data")
@@ -77,7 +77,7 @@ func runAPI(cmd *cobra.Command, args []string) error {
 			return err
 		}
 		if resp != nil {
-			fmt.Fprintln(os.Stdout, string(resp))
+			_, _ = fmt.Fprintln(os.Stdout, string(resp))
 		}
 
 	case "DELETE":

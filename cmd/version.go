@@ -35,7 +35,7 @@ var versionCmd = &cobra.Command{
 			return enc.Encode(info)
 		}
 
-		fmt.Fprintf(cmd.OutOrStdout(), "uictl %s (%s) built %s\n", Version, Commit, BuildDate)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "uictl %s (%s) built %s\n", Version, Commit, BuildDate)
 		return nil
 	},
 }

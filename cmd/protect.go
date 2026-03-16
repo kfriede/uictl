@@ -83,7 +83,9 @@ var lightUpdateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Updated light %s", args[0]))
 		return printAPIResult(result)
 	},
@@ -160,7 +162,9 @@ var sensorUpdateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Updated sensor %s", args[0]))
 		return printAPIResult(result)
 	},
@@ -237,7 +241,9 @@ var chimeUpdateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Updated chime %s", args[0]))
 		return printAPIResult(result)
 	},
@@ -314,7 +320,9 @@ var viewerUpdateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Updated viewer %s", args[0]))
 		return printAPIResult(result)
 	},
@@ -392,7 +400,9 @@ var liveviewCreateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success("Created live view")
 		return printAPIResult(result)
 	},
@@ -426,7 +436,9 @@ var liveviewUpdateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Updated live view %s", args[0]))
 		return printAPIResult(result)
 	},

@@ -109,7 +109,9 @@ var fwZoneCreateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success("Created firewall zone")
 		return printAPIResult(result)
 	},
@@ -147,7 +149,9 @@ var fwZoneUpdateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Updated firewall zone %s", args[0]))
 		return printAPIResult(result)
 	},
@@ -266,7 +270,9 @@ var fwPolicyCreateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success("Created firewall policy")
 		return printAPIResult(result)
 	},
@@ -304,7 +310,9 @@ var fwPolicyUpdateCmd = &cobra.Command{
 			return err
 		}
 		var result map[string]any
-		json.Unmarshal(resp, &result)
+		if err := json.Unmarshal(resp, &result); err != nil {
+			return err
+		}
 		printer.Success(fmt.Sprintf("Updated firewall policy %s", args[0]))
 		return printAPIResult(result)
 	},
@@ -382,7 +390,9 @@ Examples:
 				return err
 			}
 			var result map[string]any
-			json.Unmarshal(resp, &result)
+			if err := json.Unmarshal(resp, &result); err != nil {
+				return err
+			}
 			printer.Success("Updated firewall policy ordering")
 			return printAPIResult(result)
 		}
