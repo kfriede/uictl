@@ -5,6 +5,7 @@ A command-line interface for managing Ubiquiti UniFi network devices and control
 ## Features
 
 - **Full Network API coverage** — All 14 resource groups (73 operations) from the UniFi Network Integration API v1
+- **Full Protect API coverage** — Cameras, lights, sensors, chimes, viewers, live views, NVR, alarm manager (35 operations)
 - **LLM/agent-first design** — Auto-JSON in non-TTY, `--fields` for token-efficient output, `uictl schema` for runtime introspection, structured error guidance
 - **Human-friendly output** — Colored tables when interactive, JSON/CSV/NDJSON when piped
 - **Safety rails** — `--dry-run` on every mutation, confirmation prompts on destructive actions, `--yes` for automation
@@ -73,6 +74,15 @@ uictl api get /v1/info
 | `uictl traffic-list list\|get\|create\|update\|delete` | Manage traffic matching lists |
 | `uictl switching lag\|stack\|mc-lag list\|get` | View switching configs |
 | `uictl country\|dpi\|device-tag\|radius\|wan\|vpn list` | Supporting resources |
+| `uictl camera list\|get\|update\|snapshot\|stream\|ptz` | Manage Protect cameras |
+| `uictl light list\|get\|update` | Manage Protect lights |
+| `uictl sensor list\|get\|update` | Manage Protect sensors |
+| `uictl chime list\|get\|update` | Manage Protect chimes |
+| `uictl viewer list\|get\|update` | Manage Protect viewers |
+| `uictl liveview list\|get\|create\|update` | Manage Protect live views |
+| `uictl nvr get` | View NVR details |
+| `uictl alarm webhook <trigger-id>` | Trigger Protect alarms |
+| `uictl protect-info` | Protect application info |
 | `uictl api <method> <path>` | Raw API passthrough |
 | `uictl config show\|set\|path` | Manage configuration |
 | `uictl schema [resource.action]` | Runtime schema introspection |
@@ -142,7 +152,7 @@ uictl device list --profile office
 
 ## API Reference
 
-See [docs/api-reference.md](docs/api-reference.md) for the full UniFi Network API reference (v10.2.93).
+See [docs/api-reference.md](docs/api-reference.md) for the full UniFi API reference (Network v10.2.93, Protect v7.0.88).
 
 ## License
 
