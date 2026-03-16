@@ -1,0 +1,134 @@
+name: Watch UniFi API Updates
+
+on:
+  schedule:
+    # Check daily at 9am UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-api-updates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for new API versions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # Fetch current version files from beezly/unifi-apis
+          NETWORK_VERSIONS=$(curl -sf "https://api.github.com/repos/beezly/unifi-apis/contents/unifi-network" \
+            | jq -r '.[].name' | sed 's/.json$//' | sort -V)
+          PROTECT_VERSIONS=$(curl -sf "https://api.github.com/repos/beezly/unifi-apis/contents/unifi-protect" \
+            | jq -r '.[].name' | sed 's/.json$//' | sort -V)
+
+          LATEST_NETWORK=$(echo "$NETWORK_VERSIONS" | tail -1)
+          LATEST_PROTECT=$(echo "$PROTECT_VERSIONS" | tail -1)
+
+          echo "Latest Network API: $LATEST_NETWORK"
+          echo "Latest Protect API: $LATEST_PROTECT"
+
+          # Read our tracked versions
+          TRACKED_NETWORK=""
+          TRACKED_PROTECT=""
+          if [ -f .api-versions ]; then
+            TRACKED_NETWORK=$(grep '^network=' .api-versions | cut -d= -f2 || true)
+            TRACKED_PROTECT=$(grep '^protect=' .api-versions | cut -d= -f2 || true)
+          fi
+
+          echo "Tracked Network: ${TRACKED_NETWORK:-none}"
+          echo "Tracked Protect: ${TRACKED_PROTECT:-none}"
+
+          # Check if there are new versions
+          NETWORK_UPDATED=false
+          PROTECT_UPDATED=false
+
+          if [ "$LATEST_NETWORK" != "$TRACKED_NETWORK" ] && [ -n "$TRACKED_NETWORK" ]; then
+            NETWORK_UPDATED=true
+          fi
+          if [ "$LATEST_PROTECT" != "$TRACKED_PROTECT" ] && [ -n "$TRACKED_PROTECT" ]; then
+            PROTECT_UPDATED=true
+          fi
+
+          # First run — just record versions, don't alert
+          if [ -z "$TRACKED_NETWORK" ] || [ -z "$TRACKED_PROTECT" ]; then
+            echo "First run — recording baseline versions"
+            echo "network=$LATEST_NETWORK" > .api-versions
+            echo "protect=$LATEST_PROTECT" >> .api-versions
+            exit 0
+          fi
+
+          if [ "$NETWORK_UPDATED" = false ] && [ "$PROTECT_UPDATED" = false ]; then
+            echo "No new API versions detected."
+            exit 0
+          fi
+
+          # Build issue body
+          TITLE=""
+          BODY="A new UniFi API version has been published in [beezly/unifi-apis](https://github.com/beezly/unifi-apis).\n\n"
+
+          if [ "$NETWORK_UPDATED" = true ]; then
+            TITLE="New UniFi Network API: $LATEST_NETWORK"
+            BODY+="## Network API\n"
+            BODY+="- **Previous**: $TRACKED_NETWORK\n"
+            BODY+="- **New**: $LATEST_NETWORK\n"
+            BODY+="- **Spec**: [unifi-network/${LATEST_NETWORK}.json](https://github.com/beezly/unifi-apis/blob/main/unifi-network/${LATEST_NETWORK}.json)\n\n"
+          fi
+
+          if [ "$PROTECT_UPDATED" = true ]; then
+            if [ "$NETWORK_UPDATED" = true ]; then
+              TITLE="New UniFi APIs: Network $LATEST_NETWORK, Protect $LATEST_PROTECT"
+            else
+              TITLE="New UniFi Protect API: $LATEST_PROTECT"
+            fi
+            BODY+="## Protect API\n"
+            BODY+="- **Previous**: $TRACKED_PROTECT\n"
+            BODY+="- **New**: $LATEST_PROTECT\n"
+            BODY+="- **Spec**: [unifi-protect/${LATEST_PROTECT}.json](https://github.com/beezly/unifi-apis/blob/main/unifi-protect/${LATEST_PROTECT}.json)\n\n"
+          fi
+
+          BODY+="### Action Items\n"
+          BODY+="- [ ] Review the new OpenAPI spec for added/changed/removed endpoints\n"
+          BODY+="- [ ] Update \`docs/api-reference.md\`\n"
+          BODY+="- [ ] Add new commands or update existing ones\n"
+          BODY+="- [ ] Update schema registry in \`cmd/schema.go\`\n"
+
+          # Check if an issue already exists for this version
+          EXISTING=$(gh issue list --repo kfriede/uictl --label "api-update" --state open --json title -q ".[].title" | grep -c "$LATEST_NETWORK\|$LATEST_PROTECT" || true)
+          if [ "$EXISTING" -gt 0 ]; then
+            echo "Issue already exists for this version."
+            exit 0
+          fi
+
+          # Create the issue
+          echo -e "$BODY" | gh issue create \
+            --repo kfriede/uictl \
+            --title "$TITLE" \
+            --label "api-update" \
+            --body-file -
+
+          echo "Issue created: $TITLE"
+
+      - name: Update tracked versions
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST_NETWORK=$(curl -sf "https://api.github.com/repos/beezly/unifi-apis/contents/unifi-network" \
+            | jq -r '.[].name' | sed 's/.json$//' | sort -V | tail -1)
+          LATEST_PROTECT=$(curl -sf "https://api.github.com/repos/beezly/unifi-apis/contents/unifi-protect" \
+            | jq -r '.[].name' | sed 's/.json$//' | sort -V | tail -1)
+
+          echo "network=$LATEST_NETWORK" > .api-versions
+          echo "protect=$LATEST_PROTECT" >> .api-versions
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .api-versions
+          git diff --cached --quiet || git commit -m "chore: track API versions (Network $LATEST_NETWORK, Protect $LATEST_PROTECT)" && git push
