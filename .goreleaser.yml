@@ -45,19 +45,6 @@ changelog:
       - "^test:"
       - "^chore:"
 
-brews:
-  - repository:
-      owner: kfriede
-      name: homebrew-tap
-    directory: Formula
-    homepage: "https://github.com/kfriede/uictl"
-    description: "CLI for managing UniFi network devices and controllers"
-    license: "MIT"
-    install: |
-      bin.install "uictl"
-    test: |
-      system "#{bin}/uictl", "version"
-
 release:
   github:
     owner: kfriede
