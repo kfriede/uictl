@@ -1,125 +1,245 @@
-# uictl
+<p align="center">
+  <strong>uictl</strong> — manage your UniFi network from the terminal
+</p>
 
-A command-line interface for managing Ubiquiti UniFi network devices and controllers. Built for both humans and LLM agents.
+<p align="center">
+  <a href="#install">Install</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#commands">Commands</a> •
+  <a href="#for-llm-agents">For LLM Agents</a> •
+  <a href="#why-uictl">Why uictl?</a>
+</p>
 
-## Features
+---
 
-- **Full Network API coverage** — All 14 resource groups (73 operations) from the UniFi Network Integration API v1
-- **Full Protect API coverage** — Cameras, lights, sensors, chimes, viewers, live views, NVR, alarm manager (35 operations)
-- **LLM/agent-first design** — Auto-JSON in non-TTY, `--fields` for token-efficient output, `uictl schema` for runtime introspection, structured error guidance
-- **Human-friendly output** — Colored tables when interactive, JSON/CSV/NDJSON when piped
-- **Safety rails** — `--dry-run` on every mutation, confirmation prompts on destructive actions, `--yes` for automation
-- **Secure credentials** — OS keyring (macOS Keychain, Linux secret-service, Windows Credential Manager) with config file fallback
-- **Multi-profile** — Manage multiple controllers with named profiles
+**uictl** is a CLI for Ubiquiti UniFi controllers. It covers both the Network and Protect APIs — 108 operations total — in a single static binary. Designed from the ground up for humans *and* LLM agents.
+
+```bash
+# See your network at a glance
+$ uictl device list --fields name,model,state
+NAME              MODEL               STATE
+────────────────  ──────────────────  ──────
+wap01-attic       U6 Pro              ONLINE
+sw01-attic        USW Pro Max 16 PoE  ONLINE
+Home UDMP         UDM Pro             ONLINE
+
+# Pipe to an agent? Automatic JSON — no flags needed
+$ uictl device list --fields name,state | jq '.[].name'
+"wap01-attic"
+"sw01-attic"
+"Home UDMP"
+```
+
+## Why uictl?
+
+There are other UniFi CLIs. Here's why uictl is different:
+
+| Feature | uictl | unified | unifly | ui-cli |
+|---|:---:|:---:|:---:|:---:|
+| Network API (full) | ✅ | ✅ | ✅ | ✅ |
+| Protect API (full) | ✅ | ✅ | ❌ | ❌ |
+| Auto-JSON for agents (non-TTY) | ✅ | ❌ | ❌ | ❌ |
+| `--fields` (token-efficient output) | ✅ | ❌ | ❌ | ❌ |
+| `schema` command (runtime introspection) | ✅ | ❌ | ❌ | ❌ |
+| Structured error guidance | ✅ | ❌ | ❌ | ❌ |
+| `--dry-run` on every mutation | ✅ | ❌ | ❌ | ❌ |
+| `--json-input` (no flag hallucination) | ✅ | ❌ | ❌ | ❌ |
+| Agent skills file (SKILLS.md) | ✅ | ⚠️ | ❌ | ❌ |
+| NDJSON streaming output | ✅ | ❌ | ❌ | ❌ |
+| UniFi OS auto-detection | ✅ | ❌ | ✅ | ✅ |
+| OS keyring credentials | ✅ | ❌ | ✅ | ❌ |
+| Single static binary | ✅ | ✅ | ✅ | ❌ |
+| Language | Go | Go | Rust | Python |
+
+**The core differentiator**: uictl treats LLM agents as first-class users. Every design decision — output format, error messages, input handling, safety rails — considers both the human at the keyboard and the agent in the pipe.
 
 ## Install
+
+**Pre-built binaries** (linux, macOS, Windows — amd64 + arm64):
+
+Download from [GitHub Releases](https://github.com/kfriede/uictl/releases/latest).
+
+**Go install**:
 
 ```bash
 go install github.com/kfriede/uictl@latest
 ```
 
-Or build from source:
+**From source**:
 
 ```bash
-git clone https://github.com/kfriede/uictl.git
-cd uictl
-go build -o uictl .
+git clone https://github.com/kfriede/uictl.git && cd uictl && go build -o uictl .
 ```
 
 ## Quick Start
 
 ```bash
-# Authenticate with your controller
+# 1. Authenticate (interactive — stores API key in OS keyring)
 uictl login
 
-# List sites
+# 2. List your sites
 uictl site list
 
-# List devices with specific fields
-uictl device list --fields id,name,model,state
+# 3. See your devices
+uictl device list --fields name,model,state,ipAddress
 
-# Create a network
-uictl network create --name "IoT" --vlan 30
+# 4. Check a device's health
+uictl device stats <device-id>
 
-# Or use JSON input (preferred for agents)
-uictl network create --json-input '{"name":"IoT","enabled":true,"management":false,"vlanId":30}'
-
-# Restart a device (with dry-run first)
-uictl device restart <device-id> --dry-run
-uictl device restart <device-id>
-
-# Generate guest vouchers
+# 5. Create a guest voucher
 uictl hotspot create --name "Day Pass" --duration 1440 --count 10
 
-# Raw API passthrough
+# 6. Manage networks
+uictl network create --name "IoT" --vlan 30
+uictl network update <id> --json-input '{"name":"IoT v2","enabled":true,"management":false,"vlanId":30}'
+uictl network delete <id> --yes
+
+# 7. Take a camera snapshot
+uictl camera snapshot <camera-id> > front-door.jpg
+
+# 8. Anything the CLI doesn't cover yet — raw API passthrough
 uictl api get /v1/info
 ```
 
 ## Commands
 
+### Network API (73 operations)
+
+| Resource | Actions |
+|---|---|
+| `site` | `list` |
+| `device` | `list` `get` `adopt` `remove` `restart` `stats` `pending` `port-action` |
+| `client` | `list` `get` `authorize` `unauthorize` |
+| `network` | `list` `get` `create` `update` `delete` `references` |
+| `wifi` | `list` `get` `create` `update` `delete` |
+| `hotspot` | `list` `get` `create` `delete` |
+| `firewall zone` | `list` `get` `create` `update` `delete` |
+| `firewall policy` | `list` `get` `create` `update` `delete` `order` |
+| `acl` | `list` `get` `create` `update` `delete` `order` |
+| `dns` | `list` `get` `create` `update` `delete` |
+| `traffic-list` | `list` `get` `create` `update` `delete` |
+| `switching` | `lag list\|get` `stack list\|get` `mc-lag list\|get` |
+| `country` `dpi` `device-tag` `radius` `wan` `vpn` | `list` |
+
+### Protect API (35 operations)
+
+| Resource | Actions |
+|---|---|
+| `camera` | `list` `get` `update` `snapshot` `stream` `stream-create` `stream-delete` `talkback` `disable-mic` `ptz goto\|patrol-start\|patrol-stop` |
+| `light` | `list` `get` `update` |
+| `sensor` | `list` `get` `update` |
+| `chime` | `list` `get` `update` |
+| `viewer` | `list` `get` `update` |
+| `liveview` | `list` `get` `create` `update` |
+| `nvr` | `get` |
+| `alarm` | `webhook` |
+
+### Utility
+
 | Command | Description |
 |---|---|
-| `uictl login` | Authenticate with a UniFi controller |
-| `uictl info` | Get controller application info |
-| `uictl site list` | List local sites |
-| `uictl device list\|get\|adopt\|remove\|restart\|stats\|pending` | Manage devices |
-| `uictl client list\|get\|authorize\|unauthorize` | Manage connected clients |
-| `uictl network list\|get\|create\|update\|delete` | Manage networks |
-| `uictl wifi list\|get\|create\|update\|delete` | Manage WiFi broadcasts |
-| `uictl hotspot list\|get\|create\|delete` | Manage guest vouchers |
-| `uictl firewall zone list\|get\|create\|update\|delete` | Manage firewall zones |
-| `uictl firewall policy list\|get\|create\|update\|delete\|order` | Manage firewall policies |
-| `uictl acl list\|get\|create\|update\|delete\|order` | Manage ACL rules |
-| `uictl dns list\|get\|create\|update\|delete` | Manage DNS policies |
-| `uictl traffic-list list\|get\|create\|update\|delete` | Manage traffic matching lists |
-| `uictl switching lag\|stack\|mc-lag list\|get` | View switching configs |
-| `uictl country\|dpi\|device-tag\|radius\|wan\|vpn list` | Supporting resources |
-| `uictl camera list\|get\|update\|snapshot\|stream\|ptz` | Manage Protect cameras |
-| `uictl light list\|get\|update` | Manage Protect lights |
-| `uictl sensor list\|get\|update` | Manage Protect sensors |
-| `uictl chime list\|get\|update` | Manage Protect chimes |
-| `uictl viewer list\|get\|update` | Manage Protect viewers |
-| `uictl liveview list\|get\|create\|update` | Manage Protect live views |
-| `uictl nvr get` | View NVR details |
-| `uictl alarm webhook <trigger-id>` | Trigger Protect alarms |
-| `uictl protect-info` | Protect application info |
-| `uictl api <method> <path>` | Raw API passthrough |
-| `uictl config show\|set\|path` | Manage configuration |
-| `uictl schema [resource.action]` | Runtime schema introspection |
-| `uictl skills` | Agent-optimized usage instructions |
-| `uictl version` | Version information |
+| `login` | Interactive auth (stores key in OS keyring) |
+| `config show\|set\|path` | View and manage configuration |
+| `api <method> <path>` | Raw API passthrough |
+| `schema [resource.action]` | Runtime command introspection (for agents) |
+| `skills` | Agent-optimized usage instructions |
+| `version` | Version info (supports `--json`) |
+| `completion bash\|zsh\|fish` | Shell completions with dynamic API lookups |
 
-## Output Formats
+## Output
 
-| Context | Default | Override |
-|---|---|---|
-| Interactive terminal (TTY) | Colored table | `--json`, `--csv`, `--output ndjson` |
-| Piped / non-TTY / agent | JSON | `--output table` to force table |
-| Environment variable | — | `UICTL_OUTPUT_FORMAT=json` |
+uictl auto-detects what you need:
 
-Use `--fields id,name,status` to select specific fields (works with all formats).
+| Context | What you get |
+|---|---|
+| **Terminal (TTY)** | Colored, aligned tables |
+| **Piped / scripted / agent** | JSON (automatic, no flags needed) |
+| `--json` | Force JSON anywhere |
+| `--csv` | CSV output |
+| `--output ndjson` | One JSON object per line (streaming) |
+| `--fields name,ip,state` | Only the fields you ask for |
+| `UICTL_OUTPUT_FORMAT=json` | Set globally via env var |
 
-## LLM/Agent Integration
+**stdout** is always data. Logs, progress, and errors go to **stderr**.
 
-uictl is designed to work seamlessly with AI coding agents:
+## Safety
+
+Every mutating command supports `--dry-run`:
 
 ```bash
-# Agents should start here — discover available commands
-uictl schema
-uictl schema network.create
+$ uictl network delete <id> --dry-run
+[dry-run] Would delete network a69e9a69-8bd0-49b4-8f65-42345bf8e8ec
 
-# Or read the full skills reference
-uictl skills
+$ uictl network delete <id>
+Are you sure you want to delete network a69e9a69? (y/N):
 
-# Field masks minimize token usage
-uictl device list --fields id,name,state
-
-# Dry-run before mutations
-uictl network delete <id> --dry-run
-uictl network delete <id> --yes
+$ uictl network delete <id> --yes    # skip prompt (for scripts/agents)
+✓ Deleted network a69e9a69-8bd0-49b4-8f65-42345bf8e8ec
 ```
 
-Errors include structured guidance on stderr:
+## For LLM Agents
+
+uictl is built to be the CLI that agents don't fight with. Here's why:
+
+### No config needed — just env vars
+
+```bash
+export UICTL_HOST=192.168.1.1
+export UICTL_API_KEY=your-key
+export UICTL_SITE=default
+# That's it. Every command works now.
+```
+
+### Auto-JSON when piped
+
+Agents never see table output. When stdout isn't a TTY, uictl automatically outputs JSON:
+
+```bash
+# Agent runs this — gets JSON, not a table
+uictl device list --fields id,name,state
+```
+
+### Schema introspection
+
+Agents discover commands at runtime instead of hallucinating flags:
+
+```bash
+$ uictl schema network.create
+{
+  "resource": "network",
+  "action": "create",
+  "httpMethod": "POST",
+  "apiPath": "/v1/sites/{siteId}/networks",
+  "flags": [
+    {"name": "name", "type": "string", "description": "Network name"},
+    {"name": "vlan", "type": "integer", "description": "VLAN ID"},
+    {"name": "json-input", "type": "string", "description": "Full JSON request body (preferred for agents)"}
+  ],
+  "example": "uictl network create --json-input '{\"name\":\"IoT\",\"enabled\":true,\"management\":false,\"vlanId\":30}'",
+  "mutating": true,
+  "supportsDryRun": true
+}
+```
+
+### `--json-input` prevents flag hallucination
+
+Instead of guessing flags, agents send the exact API payload:
+
+```bash
+uictl network create --json-input '{"name":"IoT","enabled":true,"management":false,"vlanId":30}'
+```
+
+### `--fields` minimizes token usage
+
+```bash
+# 5 fields instead of 40 — saves tokens, faster parsing
+uictl device list --fields id,name,model,state,ipAddress
+```
+
+### Structured errors with guidance
+
+When something fails, the error tells the agent exactly what to do next:
+
 ```json
 {
   "code": "AUTH_EXPIRED",
@@ -128,31 +248,68 @@ Errors include structured guidance on stderr:
 }
 ```
 
-See [SKILLS.md](SKILLS.md) for the full agent reference.
+### Safe by default
+
+- `--dry-run` on **every** mutation — agents preview before executing
+- `--yes` required for destructive actions in non-TTY (never hangs waiting for input)
+- Input validation rejects malformed IDs with clear error messages
+
+### Skills file
+
+Ship a [SKILLS.md](SKILLS.md) that agents read once and internalize:
+
+```bash
+uictl skills    # dumps the same content at runtime
+```
 
 ## Configuration
 
 ```bash
-# Interactive setup
+# Interactive setup (stores API key in OS keyring)
 uictl login
 
-# Or set via environment variables
+# Or configure via environment
 export UICTL_HOST=192.168.1.1
 export UICTL_API_KEY=your-api-key
 export UICTL_SITE=default
 
-# Config file: ~/.config/uictl/config.yaml
-uictl config show
+# Or config file (~/.config/uictl/config.yaml)
 uictl config set host 192.168.1.1
+uictl config show
 
-# Named profiles for multiple controllers
+# Multiple controllers with named profiles
 uictl login --profile office
+uictl login --profile home
 uictl device list --profile office
+```
+
+**Precedence**: CLI flags > environment variables > config file.
+
+### UniFi OS Auto-Detection
+
+uictl automatically detects whether your controller is a UniFi OS console (UDM, UDM Pro, etc.) or a standalone Network Application and uses the correct API path. No configuration needed.
+
+### Smart Site Resolution
+
+Use site names, not just UUIDs:
+
+```bash
+uictl device list --site default     # resolves to UUID automatically
+uictl device list --site "My Site"   # works too
 ```
 
 ## API Reference
 
 See [docs/api-reference.md](docs/api-reference.md) for the full UniFi API reference (Network v10.2.93, Protect v7.0.88).
+
+## Contributing
+
+```bash
+git clone https://github.com/kfriede/uictl.git
+cd uictl
+go build ./...
+go test -race ./...
+```
 
 ## License
 
