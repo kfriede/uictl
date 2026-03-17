@@ -15,7 +15,7 @@ import (
 type Format int
 
 const (
-	FormatTable  Format = iota
+	FormatTable Format = iota
 	FormatJSON
 	FormatCSV
 	FormatNDJSON

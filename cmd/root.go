@@ -140,12 +140,12 @@ func initPrinter() {
 	noColor := flagNoColor || viper.GetBool("no_color") || os.Getenv("NO_COLOR") != ""
 
 	printer = output.NewPrinter(output.PrinterConfig{
-		Format:  format,
-		IsTTY:   isTTY,
-		NoColor: noColor,
-		Quiet:   flagQuiet,
-		Fields:  flagFields,
-		Writer:  os.Stdout,
+		Format:    format,
+		IsTTY:     isTTY,
+		NoColor:   noColor,
+		Quiet:     flagQuiet,
+		Fields:    flagFields,
+		Writer:    os.Stdout,
 		ErrWriter: os.Stderr,
 	})
 }

@@ -20,11 +20,11 @@ const (
 
 // Exit codes matching our spec
 const (
-	ExitSuccess    = 0
-	ExitGeneral    = 1
-	ExitAuth       = 2
-	ExitNotFound   = 3
-	ExitConflict   = 4
+	ExitSuccess  = 0
+	ExitGeneral  = 1
+	ExitAuth     = 2
+	ExitNotFound = 3
+	ExitConflict = 4
 )
 
 // Error implements the error interface so AppError can be used as an error.

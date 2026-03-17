@@ -55,6 +55,12 @@ There are other UniFi CLIs. Here's why uictl is different:
 
 ## Install
 
+**Homebrew** (macOS and Linux):
+
+```bash
+brew install kfriede/tap/uictl
+```
+
 **Pre-built binaries** (linux, macOS, Windows — amd64 + arm64):
 
 Download from [GitHub Releases](https://github.com/kfriede/uictl/releases/latest).
@@ -68,7 +74,7 @@ go install github.com/kfriede/uictl@latest
 **From source**:
 
 ```bash
-git clone https://github.com/kfriede/uictl.git && cd uictl && go build -o uictl .
+git clone https://github.com/kfriede/uictl.git && cd uictl && make build
 ```
 
 ## Quick Start
@@ -307,8 +313,9 @@ See [docs/api-reference.md](docs/api-reference.md) for the full UniFi API refere
 ```bash
 git clone https://github.com/kfriede/uictl.git
 cd uictl
-go build ./...
-go test -race ./...
+make all        # lint + test + build
+make test       # just tests
+make lint       # just lint
 ```
 
 ## License

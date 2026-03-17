@@ -14,16 +14,16 @@ func init() {
 
 // SchemaEntry describes a single command for agent introspection.
 type SchemaEntry struct {
-	Resource    string            `json:"resource"`
-	Action      string            `json:"action"`
-	Description string            `json:"description"`
-	Method      string            `json:"httpMethod"`
-	Path        string            `json:"apiPath"`
-	Parameters  []SchemaParam     `json:"parameters,omitempty"`
-	Flags       []SchemaFlag      `json:"flags,omitempty"`
-	Example     string            `json:"example"`
-	Mutating    bool              `json:"mutating"`
-	DryRun      bool              `json:"supportsDryRun"`
+	Resource    string        `json:"resource"`
+	Action      string        `json:"action"`
+	Description string        `json:"description"`
+	Method      string        `json:"httpMethod"`
+	Path        string        `json:"apiPath"`
+	Parameters  []SchemaParam `json:"parameters,omitempty"`
+	Flags       []SchemaFlag  `json:"flags,omitempty"`
+	Example     string        `json:"example"`
+	Mutating    bool          `json:"mutating"`
+	DryRun      bool          `json:"supportsDryRun"`
 }
 
 // SchemaParam describes a path/query parameter.
@@ -144,7 +144,7 @@ func buildSchemaRegistry() map[string]SchemaEntry {
 		"client.list": {
 			Resource: "client", Action: "list", Description: "List connected clients",
 			Method: "GET", Path: "/v1/sites/{siteId}/clients",
-			Example: "uictl client list --fields id,name,ipAddress,type",
+			Example:    "uictl client list --fields id,name,ipAddress,type",
 			Parameters: []SchemaParam{siteParam},
 		},
 		"client.get": {
@@ -186,13 +186,13 @@ func buildSchemaRegistry() map[string]SchemaEntry {
 			Resource: "network", Action: "update", Description: "Update a network",
 			Method: "PUT", Path: "/v1/sites/{siteId}/networks/{networkId}", Mutating: true, DryRun: true,
 			Example: `uictl network update <id> --json-input '{"name":"IoT v2","enabled":true,"management":false,"vlanId":30}'`,
-			Flags: []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "Full JSON request body"}},
+			Flags:   []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "Full JSON request body"}},
 		},
 		"network.delete": {
 			Resource: "network", Action: "delete", Description: "Delete a network",
 			Method: "DELETE", Path: "/v1/sites/{siteId}/networks/{networkId}", Mutating: true, DryRun: true,
 			Example: "uictl network delete <network-id> --yes",
-			Flags: []SchemaFlag{{Name: "force", Type: "boolean", Desc: "Force delete even if in use"}},
+			Flags:   []SchemaFlag{{Name: "force", Type: "boolean", Desc: "Force delete even if in use"}},
 		},
 		"wifi.list": {
 			Resource: "wifi", Action: "list", Description: "List WiFi broadcasts",

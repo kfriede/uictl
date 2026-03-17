@@ -49,3 +49,18 @@ release:
   github:
     owner: kfriede
     name: uictl
+
+brews:
+  - repository:
+      owner: kfriede
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/kfriede/uictl"
+    description: "CLI for managing UniFi network devices and controllers — built for humans and LLM agents"
+    license: "MIT"
+    install: |
+      bin.install "uictl"
+      generate_completions_from_executable(bin/"uictl", "completion")
+    test: |
+      system "#{bin}/uictl", "version"

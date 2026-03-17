@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	defaultTimeout     = 30 * time.Second
-	maxRetries         = 3
-	retryBaseDelay     = 1 * time.Second
-	userAgent          = "uictl/0.1.0"
+	defaultTimeout = 30 * time.Second
+	maxRetries     = 3
+	retryBaseDelay = 1 * time.Second
+	userAgent      = "uictl/0.1.0"
 
 	// UniFi OS consoles (UDM, UDM Pro, etc.) use the proxy path
 	unifiOSAPIPath = "/proxy/network/integration"

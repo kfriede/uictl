@@ -10,8 +10,8 @@ import (
 func TestPrinterJSON(t *testing.T) {
 	var buf bytes.Buffer
 	p := NewPrinter(PrinterConfig{
-		Format: FormatJSON,
-		Writer: &buf,
+		Format:    FormatJSON,
+		Writer:    &buf,
 		ErrWriter: &bytes.Buffer{},
 	})
 
@@ -37,8 +37,8 @@ func TestPrinterJSON(t *testing.T) {
 func TestPrinterJSONList(t *testing.T) {
 	var buf bytes.Buffer
 	p := NewPrinter(PrinterConfig{
-		Format: FormatJSON,
-		Writer: &buf,
+		Format:    FormatJSON,
+		Writer:    &buf,
 		ErrWriter: &bytes.Buffer{},
 	})
 
@@ -64,8 +64,8 @@ func TestPrinterJSONList(t *testing.T) {
 func TestPrinterNDJSON(t *testing.T) {
 	var buf bytes.Buffer
 	p := NewPrinter(PrinterConfig{
-		Format: FormatNDJSON,
-		Writer: &buf,
+		Format:    FormatNDJSON,
+		Writer:    &buf,
 		ErrWriter: &bytes.Buffer{},
 	})
 
@@ -95,9 +95,9 @@ func TestPrinterNDJSON(t *testing.T) {
 func TestPrinterFieldMask(t *testing.T) {
 	var buf bytes.Buffer
 	p := NewPrinter(PrinterConfig{
-		Format: FormatJSON,
-		Fields: "id,name",
-		Writer: &buf,
+		Format:    FormatJSON,
+		Fields:    "id,name",
+		Writer:    &buf,
 		ErrWriter: &bytes.Buffer{},
 	})
 
@@ -134,9 +134,9 @@ func TestPrinterFieldMask(t *testing.T) {
 func TestPrinterFieldMaskList(t *testing.T) {
 	var buf bytes.Buffer
 	p := NewPrinter(PrinterConfig{
-		Format: FormatJSON,
-		Fields: "id",
-		Writer: &buf,
+		Format:    FormatJSON,
+		Fields:    "id",
+		Writer:    &buf,
 		ErrWriter: &bytes.Buffer{},
 	})
 
@@ -167,9 +167,9 @@ func TestPrinterFieldMaskList(t *testing.T) {
 func TestPrinterCSV(t *testing.T) {
 	var buf bytes.Buffer
 	p := NewPrinter(PrinterConfig{
-		Format: FormatCSV,
-		Fields: "id,name",
-		Writer: &buf,
+		Format:    FormatCSV,
+		Fields:    "id,name",
+		Writer:    &buf,
 		ErrWriter: &bytes.Buffer{},
 	})
 
@@ -195,10 +195,10 @@ func TestPrinterCSV(t *testing.T) {
 func TestPrinterTable(t *testing.T) {
 	var buf bytes.Buffer
 	p := NewPrinter(PrinterConfig{
-		Format:  FormatTable,
-		NoColor: true,
-		Fields:  "id,name",
-		Writer:  &buf,
+		Format:    FormatTable,
+		NoColor:   true,
+		Fields:    "id,name",
+		Writer:    &buf,
 		ErrWriter: &bytes.Buffer{},
 	})
 
@@ -271,9 +271,9 @@ func TestAppErrorExitCodes(t *testing.T) {
 func TestEmptyListOutput(t *testing.T) {
 	var buf bytes.Buffer
 	p := NewPrinter(PrinterConfig{
-		Format:  FormatTable,
-		NoColor: true,
-		Writer:  &buf,
+		Format:    FormatTable,
+		NoColor:   true,
+		Writer:    &buf,
 		ErrWriter: &bytes.Buffer{},
 	})
 
