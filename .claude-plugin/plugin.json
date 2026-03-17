@@ -1,7 +1,8 @@
 {
   "name": "uictl",
   "version": "0.1.0",
-  "description": "Manage UniFi network infrastructure with uictl — devices, networks, firewall, WiFi, cameras, and more",
-  "keywords": ["unifi", "networking", "ubiquiti", "infrastructure", "firewall", "wifi", "iot"],
-  "skills": "./skills/"
+  "description": "Manage UniFi network infrastructure — devices, clients, networks, firewall, WiFi, cameras, and more — using the uictl CLI. Built for both humans and AI agents.",
+  "author": {
+    "name": "Kevin Friedemann"
+  }
 }

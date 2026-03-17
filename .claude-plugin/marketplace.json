@@ -1,0 +1,13 @@
+{
+  "name": "uictl",
+  "owner": {
+    "name": "Kevin Friedemann"
+  },
+  "plugins": [
+    {
+      "name": "uictl",
+      "source": ".",
+      "description": "Manage UniFi network infrastructure — devices, clients, networks, firewall, WiFi, cameras, and more — using the uictl CLI. Built for both humans and AI agents."
+    }
+  ]
+}
