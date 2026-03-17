@@ -39,6 +39,13 @@ export UICTL_API_KEY=<your-api-key>
 export UICTL_SITE=default
 ```
 
+### Network access
+
+The UniFi controller must be reachable from the environment running uictl.
+
+- **Claude Code (local)**: Works out of the box — runs natively on your machine with full LAN access.
+- **Claude Cowork (sandboxed VM)**: The VM has internet access but **cannot reach LAN-only controllers** (e.g., `192.168.1.1`). Your controller must be reachable via a public endpoint — for example, UniFi cloud access, Cloudflare Tunnel, or Tailscale.
+
 ## How to Use uictl
 
 Command pattern: `uictl <resource> <action> [flags]`
