@@ -1,0 +1,7 @@
+{
+  "name": "uictl",
+  "version": "0.1.0",
+  "description": "Manage UniFi network infrastructure with uictl — devices, networks, firewall, WiFi, cameras, and more",
+  "keywords": ["unifi", "networking", "ubiquiti", "infrastructure", "firewall", "wifi", "iot"],
+  "skills": "./skills/"
+}

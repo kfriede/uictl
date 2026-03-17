@@ -269,9 +269,24 @@ uictl ships config files that agents discover automatically:
 | [`AGENTS.md`](AGENTS.md) | All agents (cross-vendor standard) | Full usage spec, rules, patterns, boundaries |
 | [`CLAUDE.md`](CLAUDE.md) | Claude Code / Claude Desktop | Points to AGENTS.md + quick reference |
 | [`.github/copilot-instructions.md`](.github/copilot-instructions.md) | GitHub Copilot CLI | Project conventions and design principles |
+| [`.claude-plugin/`](.claude-plugin/) | Claude Cowork marketplace | Installable plugin with skills |
 | [`SKILLS.md`](SKILLS.md) | Any agent (via `uictl skills`) | YAML frontmatter + usage patterns |
 
 Agents that clone or work within this repo will automatically pick up the appropriate file. For agents using uictl as an *external tool* (not within the repo), set the env vars and run `uictl skills` to bootstrap.
+
+### Claude Cowork Plugin
+
+Install uictl as a Claude Cowork plugin for natural language network management:
+
+```
+/plugin install https://github.com/kfriede/uictl
+```
+
+Then ask Claude things like:
+- "List all my UniFi devices"
+- "Create a guest WiFi network with a 1-day voucher"
+- "Show me the firewall rules between my IoT and Server zones"
+- "Take a snapshot from the front door camera"
 
 ## Configuration
 
