@@ -24,7 +24,9 @@ Manage your entire UniFi network infrastructure using the `uictl` CLI. This skil
 
 ## Prerequisites
 
-`uictl` must be installed and available in PATH:
+`uictl` is automatically installed by the plugin's PostInstall hook. If it's not in PATH, check `${CLAUDE_PLUGIN_ROOT}/bin/uictl`.
+
+Manual install (if needed):
 ```bash
 brew install kfriede/tap/uictl
 # or: go install github.com/kfriede/uictl@latest

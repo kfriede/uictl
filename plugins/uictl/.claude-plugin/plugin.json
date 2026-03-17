@@ -5,5 +5,13 @@
   "author": {
     "name": "Kevin Friedemann"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "hooks": {
+    "PostInstall": [
+      {
+        "type": "shell",
+        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/install.sh"
+      }
+    ]
+  }
 }
