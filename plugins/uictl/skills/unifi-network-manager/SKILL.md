@@ -24,9 +24,7 @@ Manage your entire UniFi network infrastructure using the `uictl` CLI. This skil
 
 ## Prerequisites
 
-`uictl` is automatically installed by the plugin's PostInstall hook. If it's not in PATH, check `${CLAUDE_PLUGIN_ROOT}/bin/uictl`.
-
-Manual install (if needed):
+Install `uictl` and ensure it's available in PATH:
 ```bash
 brew install kfriede/tap/uictl
 # or: go install github.com/kfriede/uictl@latest
@@ -39,12 +37,7 @@ export UICTL_API_KEY=<your-api-key>
 export UICTL_SITE=default
 ```
 
-### Network access
-
-The UniFi controller must be reachable from the environment running uictl.
-
-- **Claude Code (local)**: Works out of the box — runs natively on your machine with full LAN access.
-- **Claude Cowork (sandboxed VM)**: The VM has internet access but **cannot reach LAN-only controllers** (e.g., `192.168.1.1`). Your controller must be reachable via a public endpoint — for example, UniFi cloud access, Cloudflare Tunnel, or Tailscale.
+> **Note:** This plugin requires local execution (e.g., Claude Code) with network access to your UniFi controller. It is not compatible with Claude Cowork's sandboxed VM, which restricts outbound network access and cannot reach LAN devices.
 
 ## How to Use uictl
 
