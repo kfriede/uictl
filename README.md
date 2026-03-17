@@ -260,13 +260,18 @@ When something fails, the error tells the agent exactly what to do next:
 - `--yes` required for destructive actions in non-TTY (never hangs waiting for input)
 - Input validation rejects malformed IDs with clear error messages
 
-### Skills file
+### Agent config files
 
-Ship a [SKILLS.md](SKILLS.md) that agents read once and internalize:
+uictl ships config files that agents discover automatically:
 
-```bash
-uictl skills    # dumps the same content at runtime
-```
+| File | Agent | Purpose |
+|---|---|---|
+| [`AGENTS.md`](AGENTS.md) | All agents (cross-vendor standard) | Full usage spec, rules, patterns, boundaries |
+| [`CLAUDE.md`](CLAUDE.md) | Claude Code / Claude Desktop | Points to AGENTS.md + quick reference |
+| [`.github/copilot-instructions.md`](.github/copilot-instructions.md) | GitHub Copilot CLI | Project conventions and design principles |
+| [`SKILLS.md`](SKILLS.md) | Any agent (via `uictl skills`) | YAML frontmatter + usage patterns |
+
+Agents that clone or work within this repo will automatically pick up the appropriate file. For agents using uictl as an *external tool* (not within the repo), set the env vars and run `uictl skills` to bootstrap.
 
 ## Configuration
 
