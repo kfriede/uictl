@@ -1,4 +1,5 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "uictl",
   "version": "0.1.0",
   "description": "Manage UniFi network infrastructure with the uictl CLI",
@@ -6,17 +7,17 @@
     "name": "Kevin Friedemann",
     "url": "https://github.com/kfriede/uictl"
   },
-  "pluginRoot": "./",
   "plugins": [
     {
       "name": "uictl",
-      "source": ".",
+      "source": "./plugins/uictl",
       "version": "0.1.0",
       "description": "Manage UniFi network infrastructure — devices, clients, networks, firewall, WiFi, cameras, and more — using the uictl CLI. Built for both humans and AI agents.",
       "author": {
         "name": "Kevin Friedemann"
       },
       "license": "MIT",
+      "category": "infrastructure",
       "keywords": [
         "unifi",
         "networking",
