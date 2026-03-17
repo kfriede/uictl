@@ -47,6 +47,13 @@ uictl network delete <id> --yes
 
 # Raw API for anything not yet wrapped
 uictl api get /v1/info
+
+# Classic API access (--raw bypasses /integration/ prefix)
+uictl api get --raw /proxy/network/api/s/default/stat/device
+
+# Port VLAN management
+uictl device port list <device-id> --fields idx,name,nativeNetwork,speed,up
+uictl device port set <device-id> 4 --network VLAN80_Home --dry-run
 ```
 
 ### Environment Setup

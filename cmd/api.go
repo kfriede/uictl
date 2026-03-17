@@ -21,22 +21,32 @@ var apiCmd = &cobra.Command{
 This is a passthrough command for endpoints not yet wrapped by
 dedicated subcommands. The path is relative to the integration API base.
 
+Use --raw to bypass the /integration/ prefix and send the path directly
+to the controller. This is required for classic API endpoints.
+
 Examples:
   uictl api get /v1/info
   uictl api get /v1/sites
   uictl api post /v1/sites/{siteId}/devices --data '{"macAddress":"aa:bb:cc:dd:ee:ff"}'
-  uictl api delete /v1/sites/{siteId}/networks/{networkId}`,
+  uictl api delete /v1/sites/{siteId}/networks/{networkId}
+
+Classic API (requires --raw):
+  uictl api get --raw /proxy/network/api/s/default/stat/device
+  uictl api get --raw /proxy/network/api/s/default/rest/setting/ips
+  uictl api put --raw /proxy/network/api/s/default/rest/device/{_id} --data '{"port_overrides":[...]}'`,
 	Args: cobra.MinimumNArgs(2),
 	RunE: runAPI,
 }
 
 func init() {
 	apiCmd.Flags().StringP("data", "d", "", "JSON request body")
+	apiCmd.Flags().Bool("raw", false, "Bypass integration API prefix (for classic API endpoints)")
 }
 
 func runAPI(cmd *cobra.Command, args []string) error {
 	method := strings.ToUpper(args[0])
 	path := args[1]
+	rawFlag, _ := cmd.Flags().GetBool("raw")
 
 	client, err := newAPIClient()
 	if err != nil {
@@ -45,7 +55,12 @@ func runAPI(cmd *cobra.Command, args []string) error {
 
 	switch method {
 	case "GET":
-		data, err := client.Get(path)
+		var data []byte
+		if rawFlag {
+			data, err = client.GetRaw(path)
+		} else {
+			data, err = client.Get(path)
+		}
 		if err != nil {
 			return err
 		}
@@ -65,13 +80,24 @@ func runAPI(cmd *cobra.Command, args []string) error {
 		}
 
 		var resp []byte
-		switch method {
-		case "POST":
-			resp, err = client.Post(path, body)
-		case "PUT":
-			resp, err = client.Put(path, body)
-		case "PATCH":
-			resp, err = client.Patch(path, body)
+		if rawFlag {
+			switch method {
+			case "POST":
+				resp, err = client.PostRaw(path, body)
+			case "PUT":
+				resp, err = client.PutRaw(path, body)
+			case "PATCH":
+				resp, err = client.PutRaw(path, body) // classic API rarely uses PATCH
+			}
+		} else {
+			switch method {
+			case "POST":
+				resp, err = client.Post(path, body)
+			case "PUT":
+				resp, err = client.Put(path, body)
+			case "PATCH":
+				resp, err = client.Patch(path, body)
+			}
 		}
 		if err != nil {
 			return err
@@ -81,8 +107,16 @@ func runAPI(cmd *cobra.Command, args []string) error {
 		}
 
 	case "DELETE":
-		if err := client.Delete(path); err != nil {
-			return err
+		if rawFlag {
+			resp, doErr := client.DoRaw("DELETE", path, nil)
+			if doErr != nil {
+				return doErr
+			}
+			_ = resp.Body.Close()
+		} else {
+			if doErr := client.Delete(path); doErr != nil {
+				return doErr
+			}
 		}
 		printer.Success("Deleted " + path)
 

@@ -58,6 +58,7 @@ uictl network list --fields id,name,vlanId,enabled
 uictl firewall zone list --fields id,name
 uictl firewall policy list
 uictl device stats <device-id>
+uictl device port list <device-id> --fields idx,name,nativeNetwork,speed,up
 uictl camera snapshot <camera-id> > snapshot.jpg
 ```
 
@@ -67,6 +68,10 @@ uictl camera snapshot <camera-id> > snapshot.jpg
 uictl network create --dry-run --json-input '{"name":"IoT","enabled":true,"management":false,"vlanId":30}'
 # Step 2: execute after user confirms
 uictl network create --json-input '{"name":"IoT","enabled":true,"management":false,"vlanId":30}'
+
+# Change port VLAN
+uictl device port set <device-id> 4 --network VLAN80_Home --dry-run
+uictl device port set <device-id> 4 --network VLAN80_Home --yes
 ```
 
 ### Destructive operations (require --yes)
@@ -79,6 +84,12 @@ uictl network delete <id> --yes        # execute
 ```bash
 uictl api get /v1/info
 uictl api post /v1/sites/{siteId}/devices --data '{"macAddress":"aa:bb:cc:dd:ee:ff"}'
+```
+
+### Classic API access (--raw bypasses /integration/ prefix)
+```bash
+uictl api get --raw /proxy/network/api/s/default/stat/device
+uictl api get --raw /proxy/network/api/s/default/rest/setting/ips
 ```
 
 ## Rules

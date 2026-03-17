@@ -48,6 +48,19 @@ func newAPIClient() (*api.Client, error) {
 
 // requireSite returns the site ID, resolving names like "default" to UUIDs.
 func requireSite() (string, error) {
+	_, id, err := resolveSite()
+	return id, err
+}
+
+// requireSiteRef returns the site internal reference (e.g. "default") for the classic API.
+func requireSiteRef() (string, error) {
+	ref, _, err := resolveSite()
+	return ref, err
+}
+
+// resolveSite resolves the configured site to both its internal reference
+// (for classic API paths) and UUID (for integration API paths).
+func resolveSite() (ref string, id string, err error) {
 	site := cfg.Site
 	if site == "" {
 		printer.PrintError(output.NewError(
@@ -55,35 +68,35 @@ func requireSite() (string, error) {
 			"No site specified",
 			"Use --site flag or set UICTL_SITE, or run `uictl config set site <name>`.",
 		))
-		return "", fmt.Errorf("no site specified")
+		return "", "", fmt.Errorf("no site specified")
 	}
 
-	// If it looks like a UUID already, use it directly
-	if len(site) == 36 && strings.Count(site, "-") == 4 {
-		return site, nil
-	}
-
-	// Otherwise resolve the name/internalReference to a UUID
 	client, err := newAPIClient()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	data, err := client.GetAllPages("/v1/sites")
 	if err != nil {
-		return "", fmt.Errorf("resolving site %q: %w", site, err)
+		return "", "", fmt.Errorf("resolving site %q: %w", site, err)
 	}
 
 	for _, s := range data {
 		name, _ := s["name"].(string)
-		ref, _ := s["internalReference"].(string)
-		id, _ := s["id"].(string)
-		if strings.EqualFold(name, site) || strings.EqualFold(ref, site) {
-			return id, nil
+		sRef, _ := s["internalReference"].(string)
+		sId, _ := s["id"].(string)
+
+		// Match by UUID, name, or internal reference
+		isUUID := len(site) == 36 && strings.Count(site, "-") == 4
+		if (isUUID && sId == site) || strings.EqualFold(name, site) || strings.EqualFold(sRef, site) {
+			if sRef == "" {
+				sRef = "default"
+			}
+			return sRef, sId, nil
 		}
 	}
 
-	return "", fmt.Errorf("site %q not found; run `uictl site list` to see available sites", site)
+	return "", "", fmt.Errorf("site %q not found; run `uictl site list` to see available sites", site)
 }
 
 // confirmAction asks the user to confirm a destructive action.

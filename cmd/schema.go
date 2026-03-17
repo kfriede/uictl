@@ -141,6 +141,57 @@ func buildSchemaRegistry() map[string]SchemaEntry {
 			Resource: "device", Action: "pending", Description: "List devices pending adoption",
 			Method: "GET", Path: "/v1/pending-devices", Example: "uictl device pending",
 		},
+		"device.port-action": {
+			Resource: "device", Action: "port-action", Description: "Execute a port action (e.g. cycle PoE)",
+			Method: "POST", Path: "/v1/sites/{siteId}/devices/{deviceId}/interfaces/ports/{portIdx}/actions",
+			Mutating: true, DryRun: true,
+			Example: "uictl device port-action <device-id> 4 cycle",
+			Parameters: []SchemaParam{
+				siteParam,
+				{Name: "deviceId", Type: "string", Required: true, In: "path"},
+				{Name: "portIdx", Type: "integer", Required: true, In: "path"},
+				{Name: "action", Type: "string", Required: true, In: "body"},
+			},
+		},
+		"device.port.list": {
+			Resource: "device", Action: "port.list", Description: "List switch ports with VLAN/network assignments",
+			Method: "GET", Path: "/proxy/network/api/s/{site}/stat/device/{mac} (classic API)",
+			Example: "uictl device port list <device-id> --fields idx,name,nativeNetwork,speed,poe,up",
+			Parameters: []SchemaParam{
+				siteParam,
+				{Name: "deviceId", Type: "string", Required: true, In: "path"},
+			},
+		},
+		"device.port.set": {
+			Resource: "device", Action: "port.set", Description: "Set the native network (VLAN) on a switch port",
+			Method: "PUT", Path: "/proxy/network/api/s/{site}/rest/device/{_id} (classic API)",
+			Mutating: true, DryRun: true,
+			Example: "uictl device port set <device-id> 4 --network VLAN80_Home",
+			Parameters: []SchemaParam{
+				siteParam,
+				{Name: "deviceId", Type: "string", Required: true, In: "path"},
+				{Name: "portIdx", Type: "integer", Required: true, In: "path"},
+			},
+			Flags: []SchemaFlag{
+				{Name: "network", Type: "string", Desc: "Network name, VLAN ID, or classic network ID"},
+				{Name: "json-input", Type: "string", Desc: "Full JSON port override object"},
+			},
+		},
+		"device.port.action": {
+			Resource: "device", Action: "port.action", Description: "Execute a port action (alias for port-action)",
+			Method: "POST", Path: "/v1/sites/{siteId}/devices/{deviceId}/interfaces/ports/{portIdx}/actions",
+			Mutating: true, DryRun: true,
+			Example: "uictl device port action <device-id> 4 cycle",
+		},
+		"api": {
+			Resource: "api", Action: "passthrough", Description: "Raw API request (use --raw for classic API endpoints)",
+			Method: "any", Path: "user-specified",
+			Example: "uictl api get /v1/info\nuictl api get --raw /proxy/network/api/s/default/stat/device",
+			Flags: []SchemaFlag{
+				{Name: "data", Type: "string", Desc: "JSON request body (-d)"},
+				{Name: "raw", Type: "boolean", Desc: "Bypass /integration/ prefix for classic API"},
+			},
+		},
 		"client.list": {
 			Resource: "client", Action: "list", Description: "List connected clients",
 			Method: "GET", Path: "/v1/sites/{siteId}/clients",

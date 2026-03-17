@@ -31,7 +31,7 @@ uictl <resource> <action> [flags]
 | Resource | Actions | Description |
 |---|---|---|
 | site | list | UniFi sites |
-| device | list, get, adopt, remove, restart, stats, pending, port-action | Network devices |
+| device | list, get, adopt, remove, restart, stats, pending, port-action, **port list**, **port set**, port action | Network devices |
 | client | list, get, authorize, unauthorize | Connected clients |
 | network | list, get, create, update, delete, references | VLANs and subnets |
 | wifi | list, get, create, update, delete | WiFi broadcasts (SSIDs) |
@@ -106,6 +106,23 @@ uictl hotspot create --name "Event Pass" --duration 480 --count 20
 ```bash
 uictl api get /v1/info
 uictl api post /v1/sites/{siteId}/devices --data '{"macAddress":"aa:bb:cc:dd:ee:ff","ignoreDeviceLimit":false}'
+```
+
+### Classic API access (--raw bypasses /integration/ prefix)
+```bash
+uictl api get --raw /proxy/network/api/s/default/stat/device
+uictl api get --raw /proxy/network/api/s/default/rest/setting/ips
+uictl api put --raw /proxy/network/api/s/default/rest/device/{_id} --data '{"port_overrides":[...]}'
+```
+
+### Port VLAN management
+```bash
+# List ports with VLAN assignments
+uictl device port list <device-id> --fields idx,name,nativeNetwork,speed,up
+
+# Change port native VLAN (dry-run first)
+uictl device port set <device-id> 4 --network VLAN80_Home --dry-run
+uictl device port set <device-id> 4 --network VLAN80_Home --yes
 ```
 
 ## Error Format (stderr)

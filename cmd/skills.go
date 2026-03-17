@@ -70,6 +70,15 @@ uictl network delete <network-id> --yes
 uictl api get /v1/info
 uictl api post /v1/sites/{siteId}/devices --data '{"macAddress":"aa:bb:cc:dd:ee:ff"}'
 
+### Classic API passthrough (--raw bypasses /integration/ prefix)
+uictl api get --raw /proxy/network/api/s/default/stat/device
+uictl api get --raw /proxy/network/api/s/default/rest/setting/ips
+
+### Port VLAN management (uses classic API internally)
+uictl device port list <device-id> --fields idx,name,nativeNetwork,speed,up
+uictl device port set <device-id> 4 --network VLAN80_Home --dry-run
+uictl device port set <device-id> 4 --network VLAN80_Home --yes
+
 ### Runtime introspection
 uictl schema                      # list all commands
 uictl schema network.create       # full schema for a specific command

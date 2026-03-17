@@ -26,7 +26,8 @@ const (
 // Client is the UniFi API client.
 type Client struct {
 	httpClient   *http.Client
-	baseURL      string
+	hostURL      string // original host URL without API path prefix
+	baseURL      string // host URL + detected API path prefix (/integration or /proxy/network/integration)
 	apiKey       string
 	verbose      bool
 	debug        bool
@@ -67,6 +68,7 @@ func NewClient(cfg ClientConfig) *Client {
 			Timeout:   cfg.Timeout,
 			Transport: transport,
 		},
+		hostURL:   baseURL,
 		baseURL:   baseURL,
 		apiKey:    cfg.APIKey,
 		verbose:   cfg.Verbose,
@@ -140,13 +142,24 @@ type PageResponse struct {
 }
 
 // Do performs an HTTP request with retry logic.
+// The path is appended to the detected integration API base URL.
 func (c *Client) Do(method, path string, body io.Reader) (*http.Response, error) {
 	if !c.pathDetected {
 		c.detectAPIPath()
 		c.pathDetected = true
 	}
 
-	url := c.baseURL + path
+	return c.doRequest(method, c.baseURL+path, body)
+}
+
+// DoRaw performs an HTTP request against the controller host directly,
+// bypassing the /integration/ API prefix. Use this for classic API
+// endpoints like /proxy/network/api/s/{site}/...
+func (c *Client) DoRaw(method, path string, body io.Reader) (*http.Response, error) {
+	return c.doRequest(method, c.hostURL+path, body)
+}
+
+func (c *Client) doRequest(method, url string, body io.Reader) (*http.Response, error) {
 
 	var lastErr error
 	for attempt := range maxRetries {
@@ -191,7 +204,7 @@ func (c *Client) Do(method, path string, body io.Reader) (*http.Response, error)
 		// Retry on 429 and 5xx
 		if resp.StatusCode == 429 || resp.StatusCode >= 500 {
 			_ = resp.Body.Close()
-			lastErr = fmt.Errorf("HTTP %d from %s %s", resp.StatusCode, method, path)
+			lastErr = fmt.Errorf("HTTP %d from %s %s", resp.StatusCode, method, url)
 			if attempt < maxRetries-1 {
 				delay := retryDelay(attempt)
 				if c.verbose {
@@ -270,6 +283,84 @@ func (c *Client) Delete(path string) error {
 	}
 
 	return nil
+}
+
+// GetRaw performs a GET request bypassing the integration API prefix.
+func (c *Client) GetRaw(path string) ([]byte, error) {
+	resp, err := c.DoRaw("GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading response: %w", err)
+	}
+
+	if c.debug {
+		_, _ = fmt.Fprintf(c.errWriter, "  response body: %s\n", truncate(string(data), 2000))
+	}
+
+	if resp.StatusCode >= 400 {
+		return nil, parseAPIError(resp.StatusCode, data)
+	}
+
+	return data, nil
+}
+
+// GetRawJSON performs a GET request bypassing the integration API prefix and unmarshals the response.
+func (c *Client) GetRawJSON(path string, target any) error {
+	data, err := c.GetRaw(path)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(data, target)
+}
+
+// PutRaw performs a PUT request bypassing the integration API prefix.
+func (c *Client) PutRaw(path string, body any) ([]byte, error) {
+	return c.mutateRaw("PUT", path, body)
+}
+
+// PostRaw performs a POST request bypassing the integration API prefix.
+func (c *Client) PostRaw(path string, body any) ([]byte, error) {
+	return c.mutateRaw("POST", path, body)
+}
+
+func (c *Client) mutateRaw(method, path string, body any) ([]byte, error) {
+	var bodyReader io.Reader
+	if body != nil {
+		data, err := json.Marshal(body)
+		if err != nil {
+			return nil, fmt.Errorf("marshaling request body: %w", err)
+		}
+		if c.debug {
+			_, _ = fmt.Fprintf(c.errWriter, "  request body: %s\n", truncate(string(data), 2000))
+		}
+		bodyReader = strings.NewReader(string(data))
+	}
+
+	resp, err := c.DoRaw(method, path, bodyReader)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	respData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading response: %w", err)
+	}
+
+	if c.debug {
+		_, _ = fmt.Fprintf(c.errWriter, "  response body: %s\n", truncate(string(respData), 2000))
+	}
+
+	if resp.StatusCode >= 400 {
+		return nil, parseAPIError(resp.StatusCode, respData)
+	}
+
+	return respData, nil
 }
 
 // GetAllPages fetches all pages of a paginated endpoint.
