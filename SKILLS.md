@@ -50,6 +50,19 @@ uictl <resource> <action> [flags]
 | radius | list | RADIUS profiles |
 | wan | list | WAN interfaces |
 | vpn | server, tunnel | VPN servers and tunnels |
+| alarm-hub | list, get, update, trigger | Protect alarm hubs |
+| arm-profile | list, create, update, delete, enable, disable, settings | Protect arm profiles |
+| bridge | list, get, update | Protect bridges |
+| file | list, upload | Protect device asset files |
+| fob | list, get, update | Protect key fobs |
+| link-station | list, get, update | Protect link stations |
+| pos | ingest | Protect point-of-sale transactions |
+| relay | list, get, update, activate | Protect relays |
+| siren | list, get, update, play, stop, test-sound | Protect sirens |
+| speaker | list, get, update, test-sound | Protect speakers |
+| subscribe | devices, events | Protect websocket subscriptions |
+| ulp-user | list, get | UniFi Identity users (read-only) |
+| protect-user | list, get | Protect users (read-only) |
 
 ## Global Flags
 | Flag | Short | Description |
