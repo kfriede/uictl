@@ -133,5 +133,10 @@ jobs:
           git add .api-versions
           if ! git diff --cached --quiet; then
             git commit -m "chore: track API versions (Network $LATEST_NETWORK, Protect $LATEST_PROTECT)"
-            git push
+            # main requires status checks. A GITHUB_TOKEN push is rejected and
+            # cannot start CI, so this push can never satisfy the ruleset.
+            # The open api-update issue is the watermark. Do not fail the job.
+            if ! git push; then
+              echo "Could not push .api-versions (main requires status checks). Open api-update issue is the watermark."
+            fi
           fi
