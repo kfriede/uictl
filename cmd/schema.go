@@ -304,6 +304,222 @@ func buildSchemaRegistry() map[string]SchemaEntry {
 			Resource: "traffic-list", Action: "list", Description: "List traffic matching lists",
 			Method: "GET", Path: "/v1/sites/{siteId}/traffic-matching-lists", Example: "uictl traffic-list list",
 		},
+		"alarm-hub.list": {
+			Resource: "alarm-hub", Action: "list", Description: "List Protect alarm hubs",
+			Method: "GET", Path: "/v1/alarm-hubs", Example: "uictl alarm-hub list",
+		},
+		"alarm-hub.get": {
+			Resource: "alarm-hub", Action: "get", Description: "Get Protect alarm hub details",
+			Method: "GET", Path: "/v1/alarm-hubs/{id}", Example: "uictl alarm-hub get <id>",
+		},
+		"alarm-hub.update": {
+			Resource: "alarm-hub", Action: "update", Description: "Update Protect alarm hub settings",
+			Method: "PATCH", Path: "/v1/alarm-hubs/{id}", Mutating: true, DryRun: true,
+			Example: `uictl alarm-hub update <id> --json-input '{"name":"Warehouse"}'`,
+			Flags:   []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "JSON patch body"}},
+		},
+		"alarm-hub.trigger": {
+			Resource: "alarm-hub", Action: "trigger", Description: "Trigger a Protect alarm hub output",
+			Method: "POST", Path: "/v1/alarm-hubs/{id}/outputs/{outputId}/trigger", Mutating: true, DryRun: true,
+			Example: "uictl alarm-hub trigger <id> <output-id> --enable --duration 5000",
+			Flags: []SchemaFlag{
+				{Name: "enable", Type: "bool", Desc: "Set output on or off; omit to toggle"},
+				{Name: "delay", Type: "integer", Desc: "Delay in milliseconds"},
+				{Name: "duration", Type: "integer", Desc: "Duration in milliseconds"},
+			},
+		},
+		"arm-profile.list": {
+			Resource: "arm-profile", Action: "list", Description: "List Protect arm profiles",
+			Method: "GET", Path: "/v1/arm-profiles", Example: "uictl arm-profile list",
+		},
+		"arm-profile.create": {
+			Resource: "arm-profile", Action: "create", Description: "Create a Protect arm profile",
+			Method: "POST", Path: "/v1/arm-profiles", Mutating: true, DryRun: true,
+			Example: `uictl arm-profile create --json-input '{"name":"Away","automations":[],"schedules":[],"recordEverything":false,"activationDelay":0}'`,
+			Flags:   []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "JSON body (name, automations, schedules, recordEverything, activationDelay)"}},
+		},
+		"arm-profile.update": {
+			Resource: "arm-profile", Action: "update", Description: "Update a Protect arm profile",
+			Method: "PATCH", Path: "/v1/arm-profiles/{id}", Mutating: true, DryRun: true,
+			Example: `uictl arm-profile update <id> --json-input '{"name":"Away"}'`,
+			Flags:   []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "JSON patch body"}},
+		},
+		"arm-profile.delete": {
+			Resource: "arm-profile", Action: "delete", Description: "Delete a Protect arm profile",
+			Method: "DELETE", Path: "/v1/arm-profiles/{id}", Mutating: true, DryRun: true,
+			Example: "uictl arm-profile delete <id> --yes",
+		},
+		"arm-profile.enable": {
+			Resource: "arm-profile", Action: "enable", Description: "Enable the Protect arm alarm",
+			Method: "POST", Path: "/v1/arm-profiles/enable", Mutating: true, DryRun: true,
+			Example: "uictl arm-profile enable",
+		},
+		"arm-profile.disable": {
+			Resource: "arm-profile", Action: "disable", Description: "Disable the Protect arm alarm",
+			Method: "POST", Path: "/v1/arm-profiles/disable", Mutating: true, DryRun: true,
+			Example: "uictl arm-profile disable",
+		},
+		"arm-profile.settings": {
+			Resource: "arm-profile", Action: "settings", Description: "Set the current Protect arm profile",
+			Method: "PATCH", Path: "/v1/arm-profiles/settings", Mutating: true, DryRun: true,
+			Example: "uictl arm-profile settings <arm-profile-id>",
+		},
+		"bridge.list": {
+			Resource: "bridge", Action: "list", Description: "List Protect bridges",
+			Method: "GET", Path: "/v1/bridges", Example: "uictl bridge list",
+		},
+		"bridge.get": {
+			Resource: "bridge", Action: "get", Description: "Get Protect bridge details",
+			Method: "GET", Path: "/v1/bridges/{id}", Example: "uictl bridge get <id>",
+		},
+		"bridge.update": {
+			Resource: "bridge", Action: "update", Description: "Update Protect bridge settings",
+			Method: "PATCH", Path: "/v1/bridges/{id}", Mutating: true, DryRun: true,
+			Example: `uictl bridge update <id> --json-input '{"name":"Garage"}'`,
+			Flags:   []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "JSON patch body"}},
+		},
+		"file.list": {
+			Resource: "file", Action: "list", Description: "List Protect device asset files",
+			Method: "GET", Path: "/v1/files/{fileType}", Example: "uictl file list <file-type>",
+		},
+		"file.upload": {
+			Resource: "file", Action: "upload", Description: "Upload a Protect device asset file",
+			Method: "POST", Path: "/v1/files/{fileType}", Mutating: true, DryRun: true,
+			Example: "uictl file upload <file-type> --file ./tone.mp3",
+			Flags:   []SchemaFlag{{Name: "file", Type: "string", Required: true, Desc: "Path of the file to upload"}},
+		},
+		"fob.list": {
+			Resource: "fob", Action: "list", Description: "List Protect key fobs",
+			Method: "GET", Path: "/v1/fobs", Example: "uictl fob list",
+		},
+		"fob.get": {
+			Resource: "fob", Action: "get", Description: "Get Protect key fob details",
+			Method: "GET", Path: "/v1/fobs/{id}", Example: "uictl fob get <id>",
+		},
+		"fob.update": {
+			Resource: "fob", Action: "update", Description: "Update Protect key fob settings",
+			Method: "PATCH", Path: "/v1/fobs/{id}", Mutating: true, DryRun: true,
+			Example: `uictl fob update <id> --json-input '{"name":"Front Door"}'`,
+			Flags:   []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "JSON patch body"}},
+		},
+		"link-station.list": {
+			Resource: "link-station", Action: "list", Description: "List Protect link stations",
+			Method: "GET", Path: "/v1/link-stations", Example: "uictl link-station list",
+		},
+		"link-station.get": {
+			Resource: "link-station", Action: "get", Description: "Get Protect link station details",
+			Method: "GET", Path: "/v1/link-stations/{id}", Example: "uictl link-station get <id>",
+		},
+		"link-station.update": {
+			Resource: "link-station", Action: "update", Description: "Update Protect link station settings",
+			Method: "PATCH", Path: "/v1/link-stations/{id}", Mutating: true, DryRun: true,
+			Example: `uictl link-station update <id> --json-input '{"name":"Gate"}'`,
+			Flags:   []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "JSON patch body"}},
+		},
+		"pos.ingest": {
+			Resource: "pos", Action: "ingest", Description: "Ingest a Protect point-of-sale transaction",
+			Method: "POST", Path: "/v1/pos/cameras/{id}/transactions", Mutating: true, DryRun: true,
+			Example: `uictl pos ingest <camera-id> --json-input '{"type":"sale","externalId":"txn-1","amount":12.5}'`,
+			Flags:   []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "JSON body (type sale|refund, externalId, amount; optional currency, lineItems, location)"}},
+		},
+		"relay.list": {
+			Resource: "relay", Action: "list", Description: "List Protect relays",
+			Method: "GET", Path: "/v1/relays", Example: "uictl relay list",
+		},
+		"relay.get": {
+			Resource: "relay", Action: "get", Description: "Get Protect relay details",
+			Method: "GET", Path: "/v1/relays/{id}", Example: "uictl relay get <id>",
+		},
+		"relay.update": {
+			Resource: "relay", Action: "update", Description: "Update Protect relay settings",
+			Method: "PATCH", Path: "/v1/relays/{id}", Mutating: true, DryRun: true,
+			Example: `uictl relay update <id> --json-input '{"name":"Gate"}'`,
+			Flags:   []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "JSON patch body"}},
+		},
+		"relay.activate": {
+			Resource: "relay", Action: "activate", Description: "Activate a Protect relay output",
+			Method: "POST", Path: "/v1/relays/{id}/outputs/{outputId}/activate", Mutating: true, DryRun: true,
+			Example: "uictl relay activate <id> <output-id> --state on --pulse-duration 1000",
+			Flags: []SchemaFlag{
+				{Name: "state", Type: "string", Desc: "Output state: on or off; omit to toggle"},
+				{Name: "pulse-duration", Type: "integer", Desc: "Auto-off duration in milliseconds"},
+			},
+		},
+		"siren.list": {
+			Resource: "siren", Action: "list", Description: "List Protect sirens",
+			Method: "GET", Path: "/v1/sirens", Example: "uictl siren list",
+		},
+		"siren.get": {
+			Resource: "siren", Action: "get", Description: "Get Protect siren details",
+			Method: "GET", Path: "/v1/sirens/{id}", Example: "uictl siren get <id>",
+		},
+		"siren.update": {
+			Resource: "siren", Action: "update", Description: "Update Protect siren settings",
+			Method: "PATCH", Path: "/v1/sirens/{id}", Mutating: true, DryRun: true,
+			Example: `uictl siren update <id> --json-input '{"name":"Hall"}'`,
+			Flags:   []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "JSON patch body"}},
+		},
+		"siren.play": {
+			Resource: "siren", Action: "play", Description: "Play a Protect siren",
+			Method: "POST", Path: "/v1/sirens/{id}/play", Mutating: true, DryRun: true,
+			Example: "uictl siren play <id> --duration 10",
+			Flags:   []SchemaFlag{{Name: "duration", Type: "integer", Desc: "Duration in seconds (5, 10, 20, or 30)"}},
+		},
+		"siren.stop": {
+			Resource: "siren", Action: "stop", Description: "Stop a Protect siren",
+			Method: "POST", Path: "/v1/sirens/{id}/stop", Mutating: true, DryRun: true,
+			Example: "uictl siren stop <id>",
+		},
+		"siren.test-sound": {
+			Resource: "siren", Action: "test-sound", Description: "Play a Protect siren test sound",
+			Method: "POST", Path: "/v1/sirens/{id}/test-sound", Mutating: true, DryRun: true,
+			Example: "uictl siren test-sound <id> --volume 50",
+			Flags:   []SchemaFlag{{Name: "volume", Type: "integer", Desc: "Volume from 1 to 100"}},
+		},
+		"speaker.list": {
+			Resource: "speaker", Action: "list", Description: "List Protect speakers",
+			Method: "GET", Path: "/v1/speakers", Example: "uictl speaker list",
+		},
+		"speaker.get": {
+			Resource: "speaker", Action: "get", Description: "Get Protect speaker details",
+			Method: "GET", Path: "/v1/speakers/{id}", Example: "uictl speaker get <id>",
+		},
+		"speaker.update": {
+			Resource: "speaker", Action: "update", Description: "Update Protect speaker settings",
+			Method: "PATCH", Path: "/v1/speakers/{id}", Mutating: true, DryRun: true,
+			Example: `uictl speaker update <id> --json-input '{"name":"Porch"}'`,
+			Flags:   []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "JSON patch body"}},
+		},
+		"speaker.test-sound": {
+			Resource: "speaker", Action: "test-sound", Description: "Play a Protect speaker test sound",
+			Method: "POST", Path: "/v1/speakers/{id}/test-sound", Mutating: true, DryRun: true,
+			Example: "uictl speaker test-sound <id> --volume 40",
+			Flags:   []SchemaFlag{{Name: "volume", Type: "integer", Desc: "Volume from 0 to 100"}},
+		},
+		"subscribe.devices": {
+			Resource: "subscribe", Action: "devices", Description: "Subscribe to Protect device websocket updates",
+			Method: "GET", Path: "/v1/subscribe/devices", Example: "uictl subscribe devices",
+		},
+		"subscribe.events": {
+			Resource: "subscribe", Action: "events", Description: "Subscribe to Protect event websocket messages",
+			Method: "GET", Path: "/v1/subscribe/events", Example: "uictl subscribe events",
+		},
+		"ulp-user.list": {
+			Resource: "ulp-user", Action: "list", Description: "List UniFi Identity users",
+			Method: "GET", Path: "/v1/ulp-users", Example: "uictl ulp-user list",
+		},
+		"ulp-user.get": {
+			Resource: "ulp-user", Action: "get", Description: "Get a UniFi Identity user",
+			Method: "GET", Path: "/v1/ulp-users/{id}", Example: "uictl ulp-user get <id>",
+		},
+		"protect-user.list": {
+			Resource: "protect-user", Action: "list", Description: "List Protect users",
+			Method: "GET", Path: "/v1/users", Example: "uictl protect-user list",
+		},
+		"protect-user.get": {
+			Resource: "protect-user", Action: "get", Description: "Get a Protect user",
+			Method: "GET", Path: "/v1/users/{id}", Example: "uictl protect-user get <id>",
+		},
 	}
 
 	return r

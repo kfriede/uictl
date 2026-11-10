@@ -1066,3 +1066,53 @@ All Protect device objects share:
 | `state`    | string | Connection state     |
 | `name`     | string | Device name          |
 | `mac`      | string | MAC address          |
+
+### Protect 7.3.74 commands
+
+| Method | Path | Command |
+|--------|------|---------|
+| GET | `/v1/alarm-hubs` | `alarm-hub list` |
+| GET | `/v1/alarm-hubs/{id}` | `alarm-hub get` |
+| PATCH | `/v1/alarm-hubs/{id}` | `alarm-hub update` |
+| POST | `/v1/alarm-hubs/{id}/outputs/{outputId}/trigger` | `alarm-hub trigger` |
+| GET | `/v1/arm-profiles` | `arm-profile list` |
+| POST | `/v1/arm-profiles` | `arm-profile create` |
+| PATCH | `/v1/arm-profiles/{id}` | `arm-profile update` |
+| DELETE | `/v1/arm-profiles/{id}` | `arm-profile delete` |
+| POST | `/v1/arm-profiles/enable` | `arm-profile enable` |
+| POST | `/v1/arm-profiles/disable` | `arm-profile disable` |
+| PATCH | `/v1/arm-profiles/settings` | `arm-profile settings` |
+| GET | `/v1/bridges` | `bridge list` |
+| GET | `/v1/bridges/{id}` | `bridge get` |
+| PATCH | `/v1/bridges/{id}` | `bridge update` |
+| GET | `/v1/files/{fileType}` | `file list` |
+| POST | `/v1/files/{fileType}` | `file upload` |
+| GET | `/v1/fobs` | `fob list` |
+| GET | `/v1/fobs/{id}` | `fob get` |
+| PATCH | `/v1/fobs/{id}` | `fob update` |
+| GET | `/v1/link-stations` | `link-station list` |
+| GET | `/v1/link-stations/{id}` | `link-station get` |
+| PATCH | `/v1/link-stations/{id}` | `link-station update` |
+| POST | `/v1/pos/cameras/{id}/transactions` | `pos ingest` |
+| GET | `/v1/relays` | `relay list` |
+| GET | `/v1/relays/{id}` | `relay get` |
+| PATCH | `/v1/relays/{id}` | `relay update` |
+| POST | `/v1/relays/{id}/outputs/{outputId}/activate` | `relay activate` |
+| GET | `/v1/sirens` | `siren list` |
+| GET | `/v1/sirens/{id}` | `siren get` |
+| PATCH | `/v1/sirens/{id}` | `siren update` |
+| POST | `/v1/sirens/{id}/play` | `siren play` |
+| POST | `/v1/sirens/{id}/stop` | `siren stop` |
+| POST | `/v1/sirens/{id}/test-sound` | `siren test-sound` |
+| GET | `/v1/speakers` | `speaker list` |
+| GET | `/v1/speakers/{id}` | `speaker get` |
+| PATCH | `/v1/speakers/{id}` | `speaker update` |
+| POST | `/v1/speakers/{id}/test-sound` | `speaker test-sound` |
+| GET | `/v1/subscribe/devices` | `subscribe devices` (websocket) |
+| GET | `/v1/subscribe/events` | `subscribe events` (websocket) |
+| GET | `/v1/ulp-users` | `ulp-user list` |
+| GET | `/v1/ulp-users/{id}` | `ulp-user get` |
+| GET | `/v1/users` | `protect-user list` |
+| GET | `/v1/users/{id}` | `protect-user get` |
+
+Trigger and activate accept an empty JSON body, which toggles the output. `alarm-hub trigger` optional fields are `enable`, `delay` (ms), and `duration` (ms). `relay activate` optional fields are `state` (`on` or `off`) and `pulseDuration` (ms). Siren `play` takes `duration` in seconds (5, 10, 20, or 30). Siren `test-sound` volume is 1–100. Speaker `test-sound` volume is 0–100. `arm-profile settings` sends `{"armProfileId":"<id>"}`. File upload is multipart with a `file` field. Enable, disable, delete, trigger, activate, play, stop, and test-sound return 204 with an empty body.
