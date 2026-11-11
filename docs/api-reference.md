@@ -3,7 +3,7 @@
 > Source: [beezly/unifi-apis](https://github.com/beezly/unifi-apis) (OpenAPI 3.1.0 specs auto-extracted from UniFi controllers)
 >
 > - **Network API version**: 10.2.93
-> - **Protect API version**: 7.0.88
+> - **Protect API version**: 7.4.96
 >
 > Base URL: `/integration` (relative to controller address)
 
@@ -41,6 +41,8 @@
   - [Live Views](#live-views)
   - [Device Asset Files](#device-asset-files)
   - [Alarm Manager](#alarm-manager)
+  - [External Arm Profiles](#external-arm-profiles)
+  - [Speakers](#speakers)
   - [WebSocket Subscriptions](#websocket-subscriptions)
 - [Network API Schemas](#network-api-schemas)
 - [Protect API Schemas](#protect-api-schemas)
@@ -832,12 +834,75 @@ Returns `204 No Content` on success.
 
 ---
 
+### External Arm Profiles
+
+External alarm manager profiles. Only available when the external alarm manager is in use. Distinct from local `/v1/arm-profiles`. Live consoles use `/proxy/protect/integration`; standalone Protect uses `/integration`.
+
+| Method | Path | Summary |
+|--------|------|---------|
+| GET | `/v1/external/arm-profiles` | List external arm profiles |
+| POST | `/v1/external/arm-profiles` | Create an external arm profile (`title` required) |
+| GET | `/v1/external/arm-profiles/{id}` | Get an external arm profile |
+| PATCH | `/v1/external/arm-profiles/{id}` | Update an external arm profile |
+| DELETE | `/v1/external/arm-profiles/{id}` | Delete an external arm profile (204) |
+| POST | `/v1/external/arm-profiles/{id}/actions/arm` | Arm a profile |
+| POST | `/v1/external/arm-profiles/{id}/actions/disarm` | Disarm a profile |
+
+`id` pattern: `^[0-9A-Za-z-]+$`, length 1-64.
+
+#### CLI
+
+```
+uictl external-arm-profile list
+uictl external-arm-profile get <id>
+uictl external-arm-profile create --json-input '{"title":"Away"}'
+uictl external-arm-profile update <id> --json-input '{"title":"Night"}'
+uictl external-arm-profile delete <id> --yes
+uictl external-arm-profile arm <id>
+uictl external-arm-profile disarm <id>
+```
+
+#### externalArmProfile fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Profile identifier |
+| `title` | string | Display name (required on create) |
+| `alarm_ids` | array | Linked alarm identifiers |
+| `created_at` | string | Creation timestamp |
+| `state` | string | `breached`, `breaching`, `armed`, `disarmed`, or `arming` |
+
+Optional create/patch fields: `activation_delay` (0-3600), `deactivation_delay` (0-3600), `schedule`, `pin_code`.
+
+---
+
+### Speakers
+
+| Method | Path | Summary |
+|--------|------|---------|
+| POST | `/v1/speakers/{id}/stop-siren` | Stop the speaker siren (204; 400 if offline or firmware too old) |
+
+```
+uictl speaker stop-siren <id>
+```
+
+---
+
 ### WebSocket Subscriptions
 
 | Endpoint | Summary |
 |----------|---------|
 | `GET /v1/subscribe/devices` | Device change events (add, update, remove) |
 | `GET /v1/subscribe/events` | Protect events (motion, smart detect, ring, sensor, etc.) |
+| `GET /v1/subscribe/updates` | Model create/update/remove frames (`modelKeys` required) |
+
+`GET /v1/subscribe/updates` is a websocket. Query `modelKeys` is required (comma-separated or repeated). Allowed values: `nvr`, `camera`, `chime`, `light`, `viewer`, `speaker`, `bridge`, `sensor`, `siren`, `fob`, `relay`, `aiProcessor`, `aiPort`, `linkStation`, `event`, `externalArmProfile`.
+
+```
+uictl subscribe updates --model-keys camera,event
+```
+
+Prints each JSON frame to stdout until SIGINT.
 
 #### Device Events
 

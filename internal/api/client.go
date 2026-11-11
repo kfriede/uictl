@@ -21,7 +21,38 @@ const (
 	unifiOSAPIPath = "/proxy/network/integration"
 	// Standalone Network Application uses the direct path
 	standaloneAPIPath = "/integration"
+	// UniFi Protect integration API on a UniFi OS console.
+	protectIntegrationPrefix = "/proxy/protect/integration"
 )
+
+// protectIntegrationPaths are Protect integration route prefixes. Network
+// detection must not run for these; they 404 on the Network base.
+var protectIntegrationPaths = []string{
+	"/v1/external",
+	"/v1/speakers",
+	"/v1/subscribe",
+}
+
+func isProtectIntegrationPath(path string) bool {
+	if i := strings.IndexByte(path, '?'); i >= 0 {
+		path = path[:i]
+	}
+	for _, prefix := range protectIntegrationPaths {
+		if path == prefix || strings.HasPrefix(path, prefix+"/") {
+			return true
+		}
+	}
+	return false
+}
+
+// protectBase is the Protect integration origin. Hosts that already end
+// with the proxy prefix are used as-is so the prefix is not doubled.
+func (c *Client) protectBase() string {
+	if strings.HasSuffix(c.hostURL, protectIntegrationPrefix) {
+		return c.hostURL
+	}
+	return c.hostURL + protectIntegrationPrefix
+}
 
 // Client is the UniFi API client.
 type Client struct {
@@ -142,8 +173,12 @@ type PageResponse struct {
 }
 
 // Do performs an HTTP request with retry logic.
-// The path is appended to the detected integration API base URL.
+// Protect paths go to the Protect integration base and skip Network detection.
+// Other paths are appended to the detected Network integration base URL.
 func (c *Client) Do(method, path string, body io.Reader) (*http.Response, error) {
+	if isProtectIntegrationPath(path) {
+		return c.doRequest(method, c.protectBase()+path, body)
+	}
 	if !c.pathDetected {
 		c.detectAPIPath()
 		c.pathDetected = true

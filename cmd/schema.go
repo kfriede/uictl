@@ -304,6 +304,57 @@ func buildSchemaRegistry() map[string]SchemaEntry {
 			Resource: "traffic-list", Action: "list", Description: "List traffic matching lists",
 			Method: "GET", Path: "/v1/sites/{siteId}/traffic-matching-lists", Example: "uictl traffic-list list",
 		},
+		"external-arm-profile.list": {
+			Resource: "external-arm-profile", Action: "list", Description: "List Protect external arm profiles",
+			Method: "GET", Path: "/v1/external/arm-profiles", Example: "uictl external-arm-profile list",
+		},
+		"external-arm-profile.get": {
+			Resource: "external-arm-profile", Action: "get", Description: "Get a Protect external arm profile",
+			Method: "GET", Path: "/v1/external/arm-profiles/{id}", Example: "uictl external-arm-profile get <id>",
+			Parameters: []SchemaParam{{Name: "id", Type: "string", Required: true, In: "path"}},
+		},
+		"external-arm-profile.create": {
+			Resource: "external-arm-profile", Action: "create", Description: "Create a Protect external arm profile",
+			Method: "POST", Path: "/v1/external/arm-profiles", Mutating: true, DryRun: true,
+			Example: `uictl external-arm-profile create --json-input '{"title":"Away"}'`,
+			Flags:   []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "JSON body; title is required"}},
+		},
+		"external-arm-profile.update": {
+			Resource: "external-arm-profile", Action: "update", Description: "Update a Protect external arm profile",
+			Method: "PATCH", Path: "/v1/external/arm-profiles/{id}", Mutating: true, DryRun: true,
+			Example:    `uictl external-arm-profile update <id> --json-input '{"title":"Night"}'`,
+			Parameters: []SchemaParam{{Name: "id", Type: "string", Required: true, In: "path"}},
+			Flags:      []SchemaFlag{{Name: "json-input", Type: "string", Required: true, Desc: "JSON patch body"}},
+		},
+		"external-arm-profile.delete": {
+			Resource: "external-arm-profile", Action: "delete", Description: "Delete a Protect external arm profile",
+			Method: "DELETE", Path: "/v1/external/arm-profiles/{id}", Mutating: true, DryRun: true,
+			Example:    "uictl external-arm-profile delete <id> --yes",
+			Parameters: []SchemaParam{{Name: "id", Type: "string", Required: true, In: "path"}},
+		},
+		"external-arm-profile.arm": {
+			Resource: "external-arm-profile", Action: "arm", Description: "Arm a Protect external arm profile",
+			Method: "POST", Path: "/v1/external/arm-profiles/{id}/actions/arm", Mutating: true, DryRun: true,
+			Example:    "uictl external-arm-profile arm <id>",
+			Parameters: []SchemaParam{{Name: "id", Type: "string", Required: true, In: "path"}},
+		},
+		"external-arm-profile.disarm": {
+			Resource: "external-arm-profile", Action: "disarm", Description: "Disarm a Protect external arm profile",
+			Method: "POST", Path: "/v1/external/arm-profiles/{id}/actions/disarm", Mutating: true, DryRun: true,
+			Example:    "uictl external-arm-profile disarm <id>",
+			Parameters: []SchemaParam{{Name: "id", Type: "string", Required: true, In: "path"}},
+		},
+		"speaker.stop-siren": {
+			Resource: "speaker", Action: "stop-siren", Description: "Stop a Protect speaker siren",
+			Method: "POST", Path: "/v1/speakers/{id}/stop-siren", Mutating: true, DryRun: true,
+			Example:    "uictl speaker stop-siren <id>",
+			Parameters: []SchemaParam{{Name: "id", Type: "string", Required: true, In: "path"}},
+		},
+		"subscribe.updates": {
+			Resource: "subscribe", Action: "updates", Description: "Subscribe to Protect model websocket updates",
+			Method: "GET", Path: "/v1/subscribe/updates", Example: "uictl subscribe updates --model-keys camera,event",
+			Flags: []SchemaFlag{{Name: "model-keys", Type: "string", Required: true, Desc: "Comma-separated model keys"}},
+		},
 	}
 
 	return r
