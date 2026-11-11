@@ -50,6 +50,9 @@ uictl <resource> <action> [flags]
 | radius | list | RADIUS profiles |
 | wan | list | WAN interfaces |
 | vpn | server, tunnel | VPN servers and tunnels |
+| external-arm-profile | list, get, create, update, delete, arm, disarm | Protect external alarm manager profiles |
+| speaker | stop-siren | Stop Protect speaker siren |
+| subscribe | updates | Protect websocket model updates |
 
 ## Global Flags
 | Flag | Short | Description |
